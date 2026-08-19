@@ -205,72 +205,34 @@ const deleteUser = async (req, res) => {
 
 /* Cafe controllers ----------------------------------------------------------------------*/
 
+// CREATE CAFE
 const createCafe = async (req, res) => {
-  console.log("====================================");
-  console.log("CREATE CAFE - START");
-  console.log("====================================");
-
   try {
-    // ----------------------------------
-    // 1. Get data from request
-    // ----------------------------------
-
     const { name, address } = req.body;
 
-    console.log("Cafe name received:", name);
-    console.log("Address received:", address);
-    console.log("User ID:", req.user?._id);
-
-    // ----------------------------------
-    // 2. Check that we have an address
-    // ----------------------------------
-
     if (!address) {
-      console.log("❌ No address provided");
-
       return res.status(400).json({
         success: false,
         message: "Address is required",
       });
     }
 
-    console.log("✅ Address exists");
+    let location;
 
-    // ----------------------------------
-    // 3. Send address to Nominatim
-    // ----------------------------------
-
-    console.log("📍 Sending address to Nominatim...");
-
-    const location = await findAddress(address);
-
-    console.log("Nominatim response:", location);
-
-    // ----------------------------------
-    // 4. Check whether Nominatim found it
-    // ----------------------------------
+    try {
+      location = await findAddress(address);
+    } catch (nominatimError) {
+      throw nominatimError;
+    }
 
     if (!location) {
-      console.log("❌ Nominatim could not find this address");
-
       return res.status(400).json({
         success: false,
         message: "Address could not be found",
       });
     }
 
-    console.log("✅ Nominatim found the address");
-
-    console.log("Latitude:", location.latitude);
-    console.log("Longitude:", location.longitude);
-
-    // ----------------------------------
-    // 5. Create the Cafe
-    // ----------------------------------
-
-    console.log("☕ Creating cafe in MongoDB...");
-
-    const cafe = await Cafe.create({
+    const cafeData = {
       name,
       address,
 
@@ -279,37 +241,22 @@ const createCafe = async (req, res) => {
         longitude: location.longitude,
       },
 
-      createdBy: req.user._id,
-    });
+      createdBy: req.user.id,
+    };
 
-    console.log("✅ Cafe successfully created");
-    console.log("Cafe ID:", cafe._id);
+    const cafe = await Cafe.create(cafeData);
 
-    console.log("====================================");
-    console.log("CREATE CAFE - COMPLETE");
-    console.log("====================================");
-
-    // ----------------------------------
-    // 6. Send response
-    // ----------------------------------
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
+      cafe,
     });
   } catch (error) {
-    console.log("====================================");
-    console.log("❌ CREATE CAFE - ERROR");
-    console.log("====================================");
-
-    console.error("Error:", error);
-
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       message: error.message,
     });
   }
 };
-
 
 // GET ALL
 const getCafes = async (req, res) => {

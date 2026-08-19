@@ -7,15 +7,16 @@ const findAddress = async ({
   postcode,
   country,
 }) => {
-  const address = [
+  const addressParts = [
     houseNumber,
     street,
     city,
     postcode,
     country,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  ];
+
+  const filteredParts = addressParts.filter(Boolean);
+  const address = filteredParts.join(", ");
 
   const url = new URL(NOMINATIM_URL);
 
@@ -24,11 +25,17 @@ const findAddress = async ({
   url.searchParams.set("limit", "1");
   url.searchParams.set("addressdetails", "1");
 
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": "Testapp/1.0 (katarinag1001@gmail.com)",
-    },
-  });
+  let response;
+
+  try {
+    response = await fetch(url, {
+      headers: {
+        "User-Agent": "Testapp/1.0 (katarinag1001@gmail.com)",
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -36,7 +43,13 @@ const findAddress = async ({
     );
   }
 
-  const results = await response.json();
+  let results;
+
+  try {
+    results = await response.json();
+  } catch (error) {
+    throw error;
+  }
 
   if (!results.length) {
     return null;
@@ -44,7 +57,7 @@ const findAddress = async ({
 
   const result = results[0];
 
-  return {
+  const location = {
     latitude: Number(result.lat),
     longitude: Number(result.lon),
 
@@ -55,6 +68,8 @@ const findAddress = async ({
 
     displayName: result.display_name,
   };
+
+  return location;
 };
 
 module.exports = {

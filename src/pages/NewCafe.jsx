@@ -1,4 +1,4 @@
-import AddCafe from "../components/cafes/add_cafes/addCafe"
+import AddCafe from "../components/cafes/add_cafes/AddCafe";
 
 function NewCafe() {
   return (

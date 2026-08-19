@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { getSessionToken } from "../../login/authCache";
+
 import "./AddCafe.css";
 
 const AddCafe = () => {
@@ -42,9 +44,12 @@ const AddCafe = () => {
     };
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getSessionToken();
+      
+      console.log("TOKEN FROM AUTH CACHE:", token);
+      console.log("TOKEN LENGTH:", token?.length);
 
-      const response = await fetch("http://localhost:4444/api/cafes", {
+      const response = await fetch("/api/cafes", {
         method: "POST",
 
         headers: {
