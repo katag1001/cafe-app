@@ -4,6 +4,8 @@ const User = require('../models/models')
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
 const isValidPassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(password)
 
+/* User controllers ----------------------------------------------------------------------*/
+
 const createToken = (user) =>
   jwt.sign(
     {
@@ -195,6 +197,158 @@ const deleteUser = async (req, res) => {
   }
 }
 
+/* User rating controllers ----------------------------------------------------------------------*/
+
+/* Cafe controllers ----------------------------------------------------------------------*/
+
+const Cafe = require("../models/Cafe");
+
+// CREATE
+const createCafe = async (req, res) => {
+  try {
+    const { name, address, location } = req.body;
+
+    const cafe = await Cafe.create({
+      name,
+      address,
+      location,
+      createdBy: req.user._id,
+    });
+
+    res.status(201).json({
+      success: true,
+      cafe,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// GET ALL
+const getCafes = async (req, res) => {
+  try {
+    const cafes = await Cafe.find()
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: cafes.length,
+      cafes,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// GET ONE
+const getCafeById = async (req, res) => {
+  try {
+    const cafe = await Cafe.findById(req.params.id)
+      .populate("createdBy", "name email");
+
+    if (!cafe) {
+      return res.status(404).json({
+        success: false,
+        message: "Cafe not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      cafe,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid cafe ID",
+    });
+  }
+};
+
+// UPDATE
+const updateCafe = async (req, res) => {
+  try {
+    const cafe = await Cafe.findById(req.params.id);
+
+    if (!cafe) {
+      return res.status(404).json({
+        success: false,
+        message: "Cafe not found",
+      });
+    }
+
+    // Only allow the creator to update the cafe
+    if (cafe.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update this cafe",
+      });
+    }
+
+    const allowedFields = ["name", "address", "location"];
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        cafe[field] = req.body[field];
+      }
+    });
+
+    await cafe.save();
+
+    res.status(200).json({
+      success: true,
+      cafe,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// DELETE
+const deleteCafe = async (req, res) => {
+  try {
+    const cafe = await Cafe.findById(req.params.id);
+
+    if (!cafe) {
+      return res.status(404).json({
+        success: false,
+        message: "Cafe not found",
+      });
+    }
+
+    // Only the creator can delete it
+    if (cafe.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to delete this cafe",
+      });
+    }
+
+    await cafe.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Cafe deleted successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid cafe ID",
+    });
+  }
+};
+
+
 module.exports = {
   getTest,
   postTest,
@@ -203,4 +357,9 @@ module.exports = {
   createUser,
   loginUser,
   deleteUser,
+  createCafe,
+  getCafes,
+  getCafeById,
+  updateCafe,
+  deleteCafe,
 }

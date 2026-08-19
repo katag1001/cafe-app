@@ -24,8 +24,8 @@ async function connectingToDB() {
 
 connectingToDB()
 
-app.use('/test', routes)
-app.use('/auth', routes)
+// Mount all routes once
+app.use('/api', routes)
 
 app.listen(port, () => {
   console.log('🚀 Listening on port: ' + port + ' 🚀')
