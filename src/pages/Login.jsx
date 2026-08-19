@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LoginForm from '../components/login/Login'
-import { setAuthState } from '../components/login/authCache'
 
 function Login() {
   const navigate = useNavigate()
   const [error, setError] = useState('')
 
   const handleLoginSuccess = () => {
-    setAuthState(true)
     navigate('/')
   }
 

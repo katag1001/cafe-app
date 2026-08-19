@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken')
-const User = require('../models/models')
+const { User, Cafe } = require('../models/models')
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
 const isValidPassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(password)
+
+const { findAddress } = require("../services/nominatim");
+
 
 /* User controllers ----------------------------------------------------------------------*/
 
@@ -13,7 +16,7 @@ const createToken = (user) =>
       email: user.email,
     },
     JWT_SECRET,
-    { expiresIn: '1h' },
+    { expiresIn: '1y' },
   )
 
 const getTest = (req, res) => {
@@ -24,6 +27,7 @@ const postTest = (req, res) => {
   res.status(200).json({ ok: true, received: req.body || {} })
 }
 
+/* Auth middleware */
 const requireAuth = (req, res, next) => {
   const authHeader = req.headers.authorization
   const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
@@ -201,31 +205,111 @@ const deleteUser = async (req, res) => {
 
 /* Cafe controllers ----------------------------------------------------------------------*/
 
-const Cafe = require("../models/Cafe");
-
-// CREATE
 const createCafe = async (req, res) => {
+  console.log("====================================");
+  console.log("CREATE CAFE - START");
+  console.log("====================================");
+
   try {
-    const { name, address, location } = req.body;
+    // ----------------------------------
+    // 1. Get data from request
+    // ----------------------------------
+
+    const { name, address } = req.body;
+
+    console.log("Cafe name received:", name);
+    console.log("Address received:", address);
+    console.log("User ID:", req.user?._id);
+
+    // ----------------------------------
+    // 2. Check that we have an address
+    // ----------------------------------
+
+    if (!address) {
+      console.log("❌ No address provided");
+
+      return res.status(400).json({
+        success: false,
+        message: "Address is required",
+      });
+    }
+
+    console.log("✅ Address exists");
+
+    // ----------------------------------
+    // 3. Send address to Nominatim
+    // ----------------------------------
+
+    console.log("📍 Sending address to Nominatim...");
+
+    const location = await findAddress(address);
+
+    console.log("Nominatim response:", location);
+
+    // ----------------------------------
+    // 4. Check whether Nominatim found it
+    // ----------------------------------
+
+    if (!location) {
+      console.log("❌ Nominatim could not find this address");
+
+      return res.status(400).json({
+        success: false,
+        message: "Address could not be found",
+      });
+    }
+
+    console.log("✅ Nominatim found the address");
+
+    console.log("Latitude:", location.latitude);
+    console.log("Longitude:", location.longitude);
+
+    // ----------------------------------
+    // 5. Create the Cafe
+    // ----------------------------------
+
+    console.log("☕ Creating cafe in MongoDB...");
 
     const cafe = await Cafe.create({
       name,
       address,
-      location,
+
+      location: {
+        latitude: location.latitude,
+        longitude: location.longitude,
+      },
+
       createdBy: req.user._id,
     });
 
+    console.log("✅ Cafe successfully created");
+    console.log("Cafe ID:", cafe._id);
+
+    console.log("====================================");
+    console.log("CREATE CAFE - COMPLETE");
+    console.log("====================================");
+
+    // ----------------------------------
+    // 6. Send response
+    // ----------------------------------
+
     res.status(201).json({
       success: true,
-      cafe,
     });
   } catch (error) {
+    console.log("====================================");
+    console.log("❌ CREATE CAFE - ERROR");
+    console.log("====================================");
+
+    console.error("Error:", error);
+
     res.status(400).json({
       success: false,
       message: error.message,
     });
   }
 };
+
 
 // GET ALL
 const getCafes = async (req, res) => {
