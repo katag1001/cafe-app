@@ -6,6 +6,7 @@ import Homepage from './pages/Homepage'
 import LoginPage  from './pages/LoginPage'
 import Register from './pages/Register'
 import NewCafe from './pages/NewCafe'
+import ViewOneCafe from './components/cafes/view_cafes/ViewOneCafe'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/newcafe" element={<NewCafe />} />
+        <Route path="/cafes/:id" element={<ViewOneCafe />} />
       </Routes>
     </BrowserRouter>
   )

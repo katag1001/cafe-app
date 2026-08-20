@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import CafeSidebar from "./CafeSidebar";
+import "./cafeMap.css";
 
 function ViewCafeMap() {
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const markers = useRef([]);
 
   const [cafes, setCafes] = useState([]);
 
+  // Load cafes from the API
   useEffect(() => {
     const loadCafes = async () => {
       try {
@@ -26,47 +30,52 @@ function ViewCafeMap() {
     loadCafes();
   }, []);
 
+  // Initialise the map
   useEffect(() => {
-  if (map.current) return;
+    if (map.current) return;
 
-  const protomapsKey = import.meta.env.VITE_PROTOMAPS_KEY;
+    const protomapsKey = import.meta.env.VITE_PROTOMAPS_KEY;
 
-  const newMap = new maplibregl.Map({
-    container: mapContainer.current,
-    style: `https://api.protomaps.com/styles/v5/light/en.json?key=${protomapsKey}`,
-    center: [2.1686, 41.3874],
-    zoom: 12,
-  });
+    const newMap = new maplibregl.Map({
+      container: mapContainer.current,
+      style: `https://api.protomaps.com/styles/v5/light/en.json?key=${protomapsKey}`,
+      center: [2.1686, 41.3874],
+      zoom: 12,
+    });
 
-  newMap.on("load", () => {
-    console.log("🗺️ MAP LOADED");
-  });
+    newMap.on("load", () => {
+      console.log("🗺️ MAP LOADED");
+    });
 
-  newMap.on("error", (event) => {
-    console.error("🗺️ MAP ERROR:", event);
-  });
+    newMap.on("error", (event) => {
+      console.error("🗺️ MAP ERROR:", event);
+    });
 
-  newMap.addControl(
-    new maplibregl.NavigationControl(),
-    "top-right"
-  );
+    newMap.addControl(
+      new maplibregl.NavigationControl(),
+      "top-right"
+    );
 
-  map.current = newMap;
+    map.current = newMap;
 
-  return () => {
-    newMap.remove();
-    map.current = null;
-  };
-}, []);
+    return () => {
+      newMap.remove();
+      map.current = null;
+    };
+  }, []);
 
-
+  // Add cafe markers
   useEffect(() => {
-    if (!map.current || cafes.length === 0) return;
+    if (!map.current) return;
+
+    // Remove existing markers
+    markers.current.forEach((marker) => marker.remove());
+    markers.current = [];
 
     cafes.forEach((cafe) => {
       const { latitude, longitude } = cafe.location;
 
-      new maplibregl.Marker()
+      const marker = new maplibregl.Marker()
         .setLngLat([longitude, latitude])
         .setPopup(
           new maplibregl.Popup().setHTML(`
@@ -78,17 +87,20 @@ function ViewCafeMap() {
           `)
         )
         .addTo(map.current);
+
+      markers.current.push(marker);
     });
   }, [cafes]);
 
   return (
-    <div
-      ref={mapContainer}
-      style={{
-        width: "100%",
-        height: "600px",
-      }}
-    />
+    <div className="cafe-map">
+      <CafeSidebar cafes={cafes} />
+
+      <div
+        ref={mapContainer}
+        className="cafe-map-container"
+      />
+    </div>
   );
 }
 
