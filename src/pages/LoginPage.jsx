@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LoginForm from '../components/login/Login'
 
-function Login() {
+function LoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState('')
 
@@ -40,4 +40,4 @@ function Login() {
   )
 }
 
-export default Login
+export default LoginPage

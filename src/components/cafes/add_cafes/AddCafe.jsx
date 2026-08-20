@@ -16,6 +16,9 @@ const AddCafe = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Check whether the user is logged in.
+  const token = getSessionToken();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -45,7 +48,7 @@ const AddCafe = () => {
 
     try {
       const token = getSessionToken();
-      
+
       console.log("TOKEN FROM AUTH CACHE:", token);
       console.log("TOKEN LENGTH:", token?.length);
 
@@ -85,6 +88,19 @@ const AddCafe = () => {
       setLoading(false);
     }
   };
+
+  // If the user is not logged in, don't display the form.
+  if (!token) {
+    return (
+      <div className="add-cafe">
+        <p className="message">
+          Please{" "}
+          <a href="/login">log in</a>{" "}
+          to add a cafe
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="add-cafe">

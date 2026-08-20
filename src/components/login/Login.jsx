@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { setAuthState } from './authCache'
 
-export default function Login({ onLoginSuccess }) {
+export default function Login({ onLoginSuccess, onLogout }) {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -52,14 +52,16 @@ export default function Login({ onLoginSuccess }) {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed.')
       }
+
       console.log('LOGIN RESPONSE:', data)
+
       // Save the JWT and user information to localStorage.
       setAuthState(true, data.token, data.user)
 
       console.log(
-  'LOCAL STORAGE AFTER LOGIN:',
-  window.localStorage.getItem('auth_session'),
-)
+        'LOCAL STORAGE AFTER LOGIN:',
+        window.localStorage.getItem('auth_session'),
+      )
 
       // Clear the form after successful login.
       setForm({
@@ -76,6 +78,17 @@ export default function Login({ onLoginSuccess }) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleLogout = () => {
+    // Clear authentication state.
+    setAuthState(false, null, null)
+
+    setMessage('')
+    setError('')
+
+    // Tell the parent component that logout succeeded.
+    onLogout?.()
   }
 
   return (
@@ -123,6 +136,10 @@ export default function Login({ onLoginSuccess }) {
       {error ? (
         <p className="error-message">{error}</p>
       ) : null}
+
+      <button type="button" onClick={handleLogout}>
+        Logout
+      </button>
     </section>
   )
 }
