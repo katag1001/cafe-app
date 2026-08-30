@@ -3,39 +3,103 @@
   width: 100%;
   height: 600px;
   overflow: hidden;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--border);
   border-radius: 12px;
 }
 
 /* Sidebar */
 
-.cafe-sidebar {
-  width: 300px;
+.cafe-sidebar-wrapper {
+  width: 320px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.cafe-sidebar {
+  flex: 1;
   overflow-y: auto;
-  background-color: #ffffff;
-  border-right: 1px solid #e5e5e5;
+  background-color: var(--bg);
+}
+
+.category-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-filter-bar button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.category-filter-bar button.active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.cafe-search-box {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cafe-search-box input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.zoom-prompt {
+  padding: 16px;
+  text-align: center;
+  color: var(--text);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.cafe-card-score {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--text);
 }
 
 /* Cafe card */
 
 .cafe-card {
   padding: 16px;
-  border-bottom: 1px solid #eeeeee;
-  background-color: #ffffff;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg);
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
 .cafe-card:hover {
-  background-color: #f7f7f7;
+  background-color: var(--code-bg);
 }
 
 .cafe-card h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #222222;
+  color: var(--text-h);
 }
 
 /* Map */

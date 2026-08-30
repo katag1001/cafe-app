@@ -1,13 +1,13 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import RegisterForm from '../components/login/Register'
-import { setAuthState } from '../components/login/authCache'
 
 function Register() {
   const navigate = useNavigate()
+  const [registered, setRegistered] = useState(false)
 
   const handleRegisterSuccess = () => {
-    setAuthState(true)
-    navigate('/')
+    setRegistered(true)
   }
 
   return (
@@ -17,9 +17,15 @@ function Register() {
         <h1>Create an account</h1>
       </header>
 
-      <section className="auth-layout">
-        <RegisterForm onRegisterSuccess={handleRegisterSuccess} />
-      </section>
+      {registered ? (
+        <section className="status-banner" role="status">
+          Account created! Check your email for a verification link before logging in.
+        </section>
+      ) : (
+        <section className="auth-layout">
+          <RegisterForm onRegisterSuccess={handleRegisterSuccess} />
+        </section>
+      )}
 
       <p>
         Already have an account?{' '}

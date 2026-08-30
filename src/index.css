@@ -11,6 +11,18 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  --success: #166534;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --error: #b91c1c;
+
+  /* Fixed-dark surfaces (header, primary buttons) — intentionally the same
+     in both themes for now; a real design pass will replace these. */
+  --header-bg: #333;
+  --header-text: #fff;
+  --header-text-hover: #ddd;
+  --button-bg: #333;
+  --button-text: #fff;
+
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
@@ -43,6 +55,9 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --success: #4ade80;
+    --error: #f87171;
   }
 
   #social .button-icon {

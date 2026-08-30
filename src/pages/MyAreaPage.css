@@ -1,0 +1,53 @@
+.my-area-page {
+  padding: 24px;
+  text-align: left;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.my-area-page section {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.submission-row,
+.rating-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.resubmit-form {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.resubmit-form input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.account-settings form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.account-settings label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.delete-confirm {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}

@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LoginForm from '../components/login/Login'
 
-function LoginPage() {
+function LoginPage({ onAuthChange }) {
   const navigate = useNavigate()
   const [error, setError] = useState('')
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = async () => {
+    await onAuthChange?.()
     navigate('/')
   }
 

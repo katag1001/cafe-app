@@ -1,0 +1,127 @@
+.cafe-detail-page {
+  padding: 24px;
+  text-align: left;
+}
+
+.cafe-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.cafe-tabs button {
+  border: none;
+  background: none;
+  padding: 8px 14px;
+  cursor: pointer;
+  color: var(--text);
+  border-bottom: 2px solid transparent;
+}
+
+.cafe-tabs button.active {
+  color: var(--text-h);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.cafe-mini-map {
+  width: 100%;
+  max-width: 480px;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.cafe-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.cafe-category-tab {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.category-breakdown-column,
+.top-comments-column {
+  flex: 1;
+  min-width: 280px;
+}
+
+.breakdown-row {
+  margin: 16px 0;
+}
+
+.status-label {
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+.progress-caption {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.select-option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.select-option-row .progress-bar {
+  flex: 1;
+}
+
+.scale-buckets {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.top-comments .comment {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.comment-author {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.flag-cafe {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flag-picker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}

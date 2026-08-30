@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { setSessionToken } from './authCache'
 
 const passwordRule = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/
+const usernameRule = /^[a-z0-9_]{3,20}$/
 
 export default function Register({ onRegisterSuccess }) {
-  const [form, setForm] = useState({ email: '', password: '' })
-  const [message, setMessage] = useState('')
+  const [form, setForm] = useState({ email: '', username: '', password: '' })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -17,11 +16,17 @@ export default function Register({ onRegisterSuccess }) {
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
-    setMessage('')
 
     const email = form.email.trim().toLowerCase()
-    if (!email || !form.password) {
-      setError('Email and password are required.')
+    const username = form.username.trim().toLowerCase()
+
+    if (!email || !username || !form.password) {
+      setError('Email, username, and password are required.')
+      return
+    }
+
+    if (!usernameRule.test(username)) {
+      setError('Username must be 3-20 characters: lowercase letters, numbers, or underscores only.')
       return
     }
 
@@ -33,12 +38,13 @@ export default function Register({ onRegisterSuccess }) {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('/api/register', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password: form.password }),
+        body: JSON.stringify({ email, username, password: form.password }),
       })
 
       const data = await response.json()
@@ -47,10 +53,8 @@ export default function Register({ onRegisterSuccess }) {
         throw new Error(data.message || 'Unable to create the account.')
       }
 
-      setSessionToken(data.token)
-      setForm({ email: '', password: '' })
-      setMessage('Account created successfully.')
-      onRegisterSuccess?.(data.user)
+      setForm({ email: '', username: '', password: '' })
+      onRegisterSuccess?.()
     } catch (requestError) {
       setError(requestError.message)
     } finally {
@@ -75,6 +79,18 @@ export default function Register({ onRegisterSuccess }) {
         </label>
 
         <label>
+          Username
+          <input
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            placeholder="yourusername"
+            required
+          />
+        </label>
+
+        <label>
           Password
           <input
             type="password"
@@ -87,7 +103,8 @@ export default function Register({ onRegisterSuccess }) {
         </label>
 
         <small className="password-hint">
-          Use at least 8 characters, a number, a letter, and a special character.
+          Username: 3-20 characters, lowercase letters/numbers/underscores only.
+          Password: at least 8 characters, a number, a letter, and a special character.
         </small>
 
         <button type="submit" disabled={isLoading}>
@@ -95,7 +112,6 @@ export default function Register({ onRegisterSuccess }) {
         </button>
       </form>
 
-      {message ? <p className="success-message">{message}</p> : null}
       {error ? <p className="error-message">{error}</p> : null}
     </section>
   )

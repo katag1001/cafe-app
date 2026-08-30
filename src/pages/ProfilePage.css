@@ -1,0 +1,74 @@
+.profile-page {
+  padding: 24px;
+  text-align: left;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.badge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tier-badge {
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--text-h);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.local-badge {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.badge-caption {
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.profile-body {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.favorites-column {
+  width: 25vw;
+  min-width: 220px;
+  border-right: 1px solid var(--border);
+  padding-right: 16px;
+}
+
+.profile-main {
+  flex: 1;
+  min-width: 260px;
+}
+
+.add-to-top10-modal {
+  position: fixed;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  max-width: 90vw;
+  width: 420px;
+}

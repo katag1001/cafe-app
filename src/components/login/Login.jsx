@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { setAuthState } from './authCache'
+import { Link } from 'react-router-dom'
 
-export default function Login({ onLoginSuccess, onLogout }) {
+export default function Login({ onLoginSuccess, onError }) {
   const [form, setForm] = useState({
     email: '',
     password: '',
   })
 
   const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -23,13 +23,14 @@ export default function Login({ onLoginSuccess, onLogout }) {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    setError('')
+    onError?.('')
     setMessage('')
+    setNeedsVerification(false)
 
     const email = form.email.trim().toLowerCase()
 
     if (!email || !form.password) {
-      setError('Email and password are required.')
+      onError?.('Email and password are required.')
       return
     }
 
@@ -38,6 +39,7 @@ export default function Login({ onLoginSuccess, onLogout }) {
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -50,45 +52,25 @@ export default function Login({ onLoginSuccess, onLogout }) {
       const data = await response.json()
 
       if (!response.ok) {
+        if (data.code === 'EMAIL_NOT_VERIFIED') {
+          setNeedsVerification(true)
+        }
+
         throw new Error(data.message || 'Login failed.')
       }
 
-      console.log('LOGIN RESPONSE:', data)
-
-      // Save the JWT and user information to localStorage.
-      setAuthState(true, data.token, data.user)
-
-      console.log(
-        'LOCAL STORAGE AFTER LOGIN:',
-        window.localStorage.getItem('auth_session'),
-      )
-
-      // Clear the form after successful login.
       setForm({
         email: '',
         password: '',
       })
 
       setMessage('Login successful.')
-
-      // Tell the parent component that login succeeded.
       onLoginSuccess?.(data.user)
     } catch (requestError) {
-      setError(requestError.message || 'Login failed.')
+      onError?.(requestError.message || 'Login failed.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleLogout = () => {
-    // Clear authentication state.
-    setAuthState(false, null, null)
-
-    setMessage('')
-    setError('')
-
-    // Tell the parent component that logout succeeded.
-    onLogout?.()
   }
 
   return (
@@ -129,17 +111,20 @@ export default function Login({ onLoginSuccess, onLogout }) {
         </button>
       </form>
 
+      <p>
+        <Link to="/forgot-password">Forgot password?</Link>
+      </p>
+
       {message ? (
         <p className="success-message">{message}</p>
       ) : null}
 
-      {error ? (
-        <p className="error-message">{error}</p>
+      {needsVerification ? (
+        <p className="error-message">
+          Your email isn't verified yet. Check your inbox, or{' '}
+          <Link to="/resend-verification">resend the verification email</Link>.
+        </p>
       ) : null}
-
-      <button type="button" onClick={handleLogout}>
-        Logout
-      </button>
     </section>
   )
 }

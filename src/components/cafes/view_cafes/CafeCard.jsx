@@ -8,14 +8,13 @@ function CafeCard({ cafe }) {
   };
 
   return (
-    <div
-      className="cafe-card"
-      onClick={handleClick}
-    >
+    <div className="cafe-card" onClick={handleClick}>
       <h3>{cafe.name}</h3>
+      {cafe.displayScore != null && (
+        <p className="cafe-card-score">{cafe.displayScore.toFixed(1)} / 5</p>
+      )}
     </div>
   );
 }
 
 export default CafeCard;
-

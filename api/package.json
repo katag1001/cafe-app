@@ -11,12 +11,15 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "*",
+    "cookie-parser": "^1.4.7",
     "cors": "*",
     "dotenv": "^17.4.2",
     "express": "*",
+    "express-rate-limit": "^8.6.2",
     "jsonwebtoken": "*",
     "mongodb": "^7.5.0",
     "mongoose": "*",
-    "nodemailer": "*"
+    "nodemailer": "*",
+    "opening_hours": "^3.14.0"
   }
 }
