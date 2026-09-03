@@ -43,7 +43,7 @@ function BrowseUserFavesPage() {
   }, []);
 
   return (
-    <div className="browse-user-faves-page">
+    <div className="browse-user-faves-page container">
       <h1>Browse user faves</h1>
 
       {status === "locating" && <p>Finding your location...</p>}

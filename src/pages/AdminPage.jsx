@@ -51,7 +51,11 @@ function AdminPage({ currentUser, authLoading }) {
   // ADMIN_EMAILS itself (CLAUDE.md §4.5), so this redirect isn't the real
   // security boundary, just a nicer experience than a 403 screen.
   if (authLoading) {
-    return <p>Loading...</p>;
+    return (
+      <main className="container admin-page">
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   if (!currentUser?.isAdmin) {
@@ -59,7 +63,7 @@ function AdminPage({ currentUser, authLoading }) {
   }
 
   return (
-    <div className="admin-page">
+    <div className="admin-page container">
       <AdminRequestDetail queueType={queueType} item={selectedItem} onActionComplete={loadItems} />
 
       <AdminQueueList

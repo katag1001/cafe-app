@@ -29,9 +29,9 @@ function ProfilePage({ currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
-  if (loading) return <p>Loading profile...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!profile) return <p>Profile not found.</p>;
+  if (loading) return <main className="container page-status"><p>Loading profile...</p></main>;
+  if (error) return <main className="container page-status"><p>Error: {error}</p></main>;
+  if (!profile) return <main className="container page-status"><p>Profile not found.</p></main>;
 
   const isOwner = currentUser?.username === profile.username;
 
@@ -48,7 +48,7 @@ function ProfilePage({ currentUser }) {
         </div>
       </div>
 
-      <div className="profile-body">
+      <div className="profile-body container">
         <FavoritesColumn
           username={profile.username}
           favorites={profile.favorites}

@@ -150,19 +150,6 @@ const AddCafe = ({ currentUser }) => {
     setError("");
   };
 
-  // If the user is not logged in, don't display the form.
-  if (!currentUser) {
-    return (
-      <div className="add-cafe">
-        <p className="message">
-          Please{" "}
-          <a href="/login">log in</a>{" "}
-          to add a cafe
-        </p>
-      </div>
-    );
-  }
-
   if (step === "confirm") {
     return (
       <div className="add-cafe">

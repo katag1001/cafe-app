@@ -6,15 +6,14 @@ function Header({ currentUser }) {
     <header className="header">
       <nav className="navbar container">
         <Link to="/" className="logo">
-          <span className="logo-mark">☕</span>
-          CafeFinder
+          Chocolate Pistachio
         </Link>
 
         <div className="nav-links">
           <Link to="/">Home</Link>
-          <Link to="/browse-user-faves">Browse user faves</Link>
+          <Link to="/browse-user-faves">User faves</Link>
           {currentUser?.isAdmin ? <Link to="/admin">Admin</Link> : null}
-          {currentUser ? <Link to="/my-area">My Area</Link> : <Link to="/login">Login</Link>}
+          {currentUser ? <Link to="/my-area">Me</Link> : <Link to="/login">Login</Link>}
           <Link to="/newcafe" className="nav-cta">
             + Add a cafe
           </Link>

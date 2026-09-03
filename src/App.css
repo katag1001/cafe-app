@@ -293,6 +293,14 @@
   padding: var(--space-8) var(--space-5);
 }
 
+/* Loading/error/empty text states that render before a page's real content
+   is ready — still needs the same container padding as the real content. */
+.page-status {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-8);
+  text-align: left;
+}
+
 /* ---------------------------------------------------------------------- */
 /* Generic form pieces shared by rating forms + add-cafe wizard            */
 /* ---------------------------------------------------------------------- */

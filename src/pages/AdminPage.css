@@ -1,9 +1,8 @@
 .admin-page {
   display: flex;
   gap: var(--space-5);
-  padding: var(--space-6) var(--space-5) var(--space-8);
-  max-width: var(--container-width);
-  margin: 0 auto;
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-8);
   text-align: left;
   align-items: flex-start;
 }

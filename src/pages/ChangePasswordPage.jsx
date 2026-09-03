@@ -10,7 +10,11 @@ function ChangePasswordPage({ currentUser, authLoading }) {
   const [loading, setLoading] = useState(false);
 
   if (authLoading) {
-    return <p>Loading...</p>;
+    return (
+      <main className="auth-app-shell">
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   if (!currentUser) {

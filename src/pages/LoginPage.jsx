@@ -13,10 +13,7 @@ function LoginPage({ onAuthChange }) {
 
   return (
     <main className="auth-app-shell">
-      <header className="auth-header">
-        <p className="eyebrow">Authentication</p>
-        <h1>Log in</h1>
-      </header>
+
 
       {error ? (
         <section className="status-banner" role="alert">

@@ -38,9 +38,9 @@ function ViewOneCafe({ currentUser, onAuthChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  if (loading) return <p>Loading cafe...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!cafe) return <p>Cafe not found.</p>;
+  if (loading) return <main className="container page-status"><p>Loading cafe...</p></main>;
+  if (error) return <main className="container page-status"><p>Error: {error}</p></main>;
+  if (!cafe) return <main className="container page-status"><p>Cafe not found.</p></main>;
 
   const activeCategoryDef = categories.find((c) => c.id === activeTab);
   const categorySummary = cafe.ratingSummary?.categories?.find((c) => c.categoryId === activeTab);

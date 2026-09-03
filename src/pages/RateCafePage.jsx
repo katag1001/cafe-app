@@ -11,7 +11,11 @@ function RateCafePage({ currentUser, authLoading }) {
   const { categories, loading } = useCategories();
 
   if (authLoading) {
-    return <p>Loading...</p>;
+    return (
+      <main className="container page-status">
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   if (!currentUser) {
@@ -25,14 +29,22 @@ function RateCafePage({ currentUser, authLoading }) {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <main className="container page-status">
+        <p>Loading...</p>
+      </main>
+    );
   }
 
   if (categoryId) {
     const categoryDef = categories.find((c) => c.id === categoryId);
 
     if (!categoryDef) {
-      return <p>Unknown category.</p>;
+      return (
+        <main className="container page-status">
+          <p>Unknown category.</p>
+        </main>
+      );
     }
 
     return (
