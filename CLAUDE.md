@@ -28,11 +28,11 @@ Everything deploys through Vercel as one project. This has a hard consequence th
 
 ### 3.1 The serverless function limit
 
-Vercel's Hobby (free) plan caps the project at roughly **12 serverless functions**. On Vercel, **every file that sits directly under `/api/`** and exports a request handler becomes its **own** separate serverless function. Files nested inside subfolders of `/api/` (like `api/controllers/foo.js`) are *not* treated as functions themselves — they're just regular Node modules that a function imports.
+Vercel's Hobby (free) plan caps the project at roughly **12 serverless functions**. Vercel's zero-config Node detection treats **every `.js` file anywhere under `/api/`, including nested subfolders** (e.g. `api/controllers/foo.js`), as its own separate serverless-function entrypoint — confirmed empirically via `vercel build`, which produced 19 functions from this repo's `api/config/`, `api/controllers/`, `api/middleware/`, `api/models/`, `api/routes/`, `api/services/` files before this was fixed. (An earlier version of this document claimed nested files were exempt — that was wrong and caused a real deploy failure; do not reintroduce that assumption.)
 
-**The rule this creates, and it is non-negotiable: never add a new file directly under `/api/`.** The entire backend — however many routes, features, or controllers it grows to — must be reachable through the **one** existing entry point, `api/index.js`, which exports a single Express app. Every route, for every feature (cafes, ratings, users, admin, flags, categories, everything), is added to that one Express app via `api/routes/routes.js` and `api/controllers/`, never as a sibling file next to `index.js`. This is already how the repo is shaped today — the constraint is to **keep it that way as it grows**, not to introduce per-feature top-level files (e.g. do not create `api/admin.js`, `api/ratings.js`, etc. as separate files).
+The fix, and the rule going forward: **every folder under `/api/` other than the entry point must be prefixed with an underscore** (`api/_config/`, `api/_controllers/`, `api/_middleware/`, `api/_models/`, `api/_routes/`, `api/_services/`). Vercel's Node builder excludes any file or folder starting with `_` from function auto-detection, so these are treated as plain shared modules that `api/index.js` imports, not as separate functions. **Never add a new file or folder directly under `/api/` without a leading underscore**, and never add a second non-underscored file next to `index.js` (e.g. `api/admin.js`, `api/ratings.js`) — everything routes through the one `api/index.js` Express app, via `api/_routes/routes.js` and `api/_controllers/`.
 
-This means the whole backend compiles down to exactly **one** Vercel function, regardless of how many Express routes it internally handles — there is effectively no limit on route count, only on top-level files in `/api/`.
+This means the whole backend compiles down to exactly **one** Vercel function, regardless of how many Express routes it internally handles — there is effectively no limit on route count, only on non-underscored top-level entries in `/api/`. After any change to `/api/`'s folder structure, verify with `npx vercel build` and confirm `.vercel/output/functions/` contains exactly one `.func` directory (`api/index.func`) before deploying.
 
 ### 3.2 Making the Express app actually work as a Vercel function
 
@@ -54,7 +54,7 @@ Hobby-plan serverless functions have a request execution time ceiling (short —
 
 ### 3.5 Environment variables
 
-Production environment variables (`MONGO`, `JWT_SECRET`, `ADMIN_EMAILS`, `EMAIL_FROM_ADDRESS`, `EMAIL_APP_PASSWORD`, `VITE_PROTOMAPS_KEY`, `FRONTEND_URL`, etc.) are set through the Vercel project dashboard for deployed environments. Local development continues to use the existing `.env` (`api/.env`) / `.env.local` files, which are not committed.
+Production environment variables (`MONGO`, `JWT_SECRET`, `ADMIN_EMAILS`, `EMAIL_FROM_ADDRESS`, `EMAIL_APP_PASSWORD`, `VITE_PROTOMAPS_KEY`, `FRONTEND_URL`, etc.) are set through the Vercel project dashboard for deployed environments. Local development uses a single root-level `.env` (backend secrets) and `.env.local` (frontend/Vite-prefixed values), neither committed — there is no separate `api/.env`. Because `dev:api` runs `api/index.js` with its cwd changed to `api/` (via `npm --prefix api start`), `api/index.js` loads dotenv with an explicit path (`path.resolve(__dirname, '../.env')`) rather than the cwd-relative default, so it always finds the root `.env` regardless of how it's launched.
 
 ---
 
@@ -64,20 +64,20 @@ Production environment variables (`MONGO`, `JWT_SECRET`, `ADMIN_EMAILS`, `EMAIL_
 
 ```
 api/
-  index.js         # the ONLY file directly under /api — exports the Express app (see §3)
-  config/          # NEW — static, hand-edited config data (see §4.2)
-  controllers/     # request handlers, one file per resource area
-  models/          # Mongoose schemas
-  routes/          # Express route definitions, wired to controllers
-  services/        # integrations with external systems (Nominatim, Overpass, email, opening-hours parsing)
-  middleware/       # NEW — auth (requireAuth/requireAdmin), rate limiting
+  index.js         # the ONLY non-underscored file directly under /api — exports the Express app (see §3)
+  _config/         # static, hand-edited config data (see §4.2)
+  _controllers/    # request handlers, one file per resource area
+  _models/         # Mongoose schemas
+  _routes/         # Express route definitions, wired to controllers
+  _services/       # integrations with external systems (Nominatim, Overpass, email, opening-hours parsing)
+  _middleware/      # auth (requireAuth/requireAdmin), rate limiting
 ```
 
-`config/`, `middleware/` are additions needed for the features in `PRD.md` — they don't exist yet but follow the same "subfolder, not a top-level file" rule from §3.1.
+Every folder here is underscore-prefixed so Vercel's per-file function auto-detection skips it (§3.1) — this is required, not stylistic. New feature areas follow the same "underscored subfolder, never a top-level file" rule.
 
 ### 4.2 Config-as-data principle
 
-This project has a standing rule, applied repeatedly throughout `PRD.md`: **anything that could plausibly need tuning later lives in its own dedicated file, never hardcoded inline in logic.** Concretely, `api/config/` should hold:
+This project has a standing rule, applied repeatedly throughout `PRD.md`: **anything that could plausibly need tuning later lives in its own dedicated file, never hardcoded inline in logic.** Concretely, `api/_config/` should hold:
 
 - **`categories.js`** — the category registry: every category's id, label, and full question bank (see `PRD.md` §9 for the actual question content, §11 for why this must be data-driven). This is the single source of truth categories and questions are defined from.
 - **`tiers.js`** — the five-tier name/threshold/weight-multiplier table (`PRD.md` §8.2).
@@ -91,26 +91,26 @@ Per `PRD.md` §4: `Cafe`, `CafeRating`, and `User` are the source of truth. `Caf
 
 ### 4.4 The array-keyed schema pattern
 
-Per `PRD.md` §4.2–§4.3 and §11: `Cafe.ratingSummary`, `CafeRating`'s per-category entries, and `User.contributorStats.categories` are all **arrays keyed by `categoryId`**, not fixed named schema fields (there is no `ratingSummary.computer`, `ratingSummary.accessible`, etc. as literal schema keys — there's a `ratingSummary` array containing `{ categoryId: "computer", ... }` among its entries). Any backend code that reads or writes category-specific rating data — controllers, aggregation pipelines, recompute logic — must look categories up by `categoryId` within these arrays, driven by the registry in `config/categories.js`, rather than referencing a category by name as a literal object property anywhere. This is what makes adding a category a config-only change; breaking this pattern anywhere reintroduces the hardcoding problem it exists to avoid.
+Per `PRD.md` §4.2–§4.3 and §11: `Cafe.ratingSummary`, `CafeRating`'s per-category entries, and `User.contributorStats.categories` are all **arrays keyed by `categoryId`**, not fixed named schema fields (there is no `ratingSummary.computer`, `ratingSummary.accessible`, etc. as literal schema keys — there's a `ratingSummary` array containing `{ categoryId: "computer", ... }` among its entries). Any backend code that reads or writes category-specific rating data — controllers, aggregation pipelines, recompute logic — must look categories up by `categoryId` within these arrays, driven by the registry in `_config/categories.js`, rather than referencing a category by name as a literal object property anywhere. This is what makes adding a category a config-only change; breaking this pattern anywhere reintroduces the hardcoding problem it exists to avoid.
 
 ### 4.5 Auth & security architecture
 
 (Full rules in `PRD.md` §5.) Architecturally relevant points for how code must be structured:
 
-- JWT lives in an `httpOnly` cookie set by the backend, never returned in a JSON body for the frontend to store itself. `middleware/auth.js` reads the cookie, not an `Authorization: Bearer` header.
+- JWT lives in an `httpOnly` cookie set by the backend, never returned in a JSON body for the frontend to store itself. `_middleware/auth.js` reads the cookie, not an `Authorization: Bearer` header.
 - **Admin authorization is checked live, on every admin-gated request**, against the `ADMIN_EMAILS` env var — never cached on a JWT claim or a stored DB role field. `middleware/` should have a `requireAdmin` that runs after `requireAuth` and does this live check.
 - CORS must be locked to the deployed frontend's exact origin with `credentials: true` — this is required, not optional, for the cookie to be sent cross-origin at all.
-- Rate limiting (login, registration, resend-verification) belongs in `middleware/`, applied at the route level in `routes/routes.js`.
+- Rate limiting (login, registration, resend-verification) belongs in `_middleware/`, applied at the route level in `_routes/routes.js`.
 - `JWT_SECRET` must be read with no fallback value — the app should fail to start if it's unset, rather than signing tokens with a known default.
 - No endpoint may return a user's password hash. No endpoint may return a user's email except that user's own `/me`-style request. Every other user-referencing response field (populated `createdBy`, comment authorship, public profile data) surfaces `username` only.
 
 ### 4.6 External service integration pattern
 
-Each third-party/OSM integration gets its own file in `services/` (the existing `services/nominatim.js` is the template to follow):
-- `services/nominatim.js` — address geocoding (exists).
-- `services/overpass.js` — business-presence check + `opening_hours`/`phone`/`website` enrichment (`PRD.md` §7.1) — needed, doesn't exist yet.
-- `services/openingHours.js` — wraps the `opening_hours.js` parser to convert OSM's text syntax into this app's structured per-day format.
-- `services/email.js` — the shared `sendEmail()` utility used by every notification described in `PRD.md` §6.4, reading its sender config from `config/email.js`.
+Each third-party/OSM integration gets its own file in `_services/` (the existing `_services/nominatim.js` is the template to follow):
+- `_services/nominatim.js` — address geocoding (exists).
+- `_services/overpass.js` — business-presence check + `opening_hours`/`phone`/`website` enrichment (`PRD.md` §7.1) — needed, doesn't exist yet.
+- `_services/openingHours.js` — wraps the `opening_hours.js` parser to convert OSM's text syntax into this app's structured per-day format.
+- `_services/email.js` — the shared `sendEmail()` utility used by every notification described in `PRD.md` §6.4, reading its sender config from `_config/email.js`.
 
 All of these must respect the "geocode/verify once, cache forever" principle (`PRD.md` §7) — they are called at cafe creation/edit time only, never on read/view, and must send a descriptive `User-Agent` and respect the relevant service's rate limits.
 
@@ -172,7 +172,7 @@ A quick-reference list of the non-negotiable rules from this document, for a fas
 - [ ] `api/index.js` exports the Express app; `.listen()` only runs outside the Vercel environment (§3.2).
 - [ ] `vercel.json` rewrites all `/api/*` traffic to the single function (§3.2).
 - [ ] MongoDB connection is cached/reused across invocations, never reconnected per-request (§3.3).
-- [ ] Categories and their questions are only ever defined in `api/config/categories.js`; the frontend fetches them, never hardcodes them (§4.2).
+- [ ] Categories and their questions are only ever defined in `api/_config/categories.js`; the frontend fetches them, never hardcodes them (§4.2).
 - [ ] `ratingSummary` / `CafeRating` category data / `contributorStats.categories` are array-keyed by `categoryId`, never named schema fields (§4.4).
 - [ ] `ratingSummary` and `contributorStats` are always treated as recomputable from `CafeRating`, never hand-patched independently (§4.3).
 - [ ] Admin status is re-checked live against `ADMIN_EMAILS` on every admin request, never trusted from a cached token/role (§4.5).

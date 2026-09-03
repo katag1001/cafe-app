@@ -1,17 +1,17 @@
 const jwt = require('jsonwebtoken')
-const { User, Cafe, CafeRating, Flag } = require('../models/models')
-const { JWT_SECRET, isAdminEmail } = require('../middleware/auth')
-const { generateToken, hashToken } = require('../services/tokens')
-const { sendEmail } = require('../services/email')
-const categories = require('../config/categories')
-const { FLAG_REASONS, REJECTION_REASONS } = require('../config/reasons')
-const { getTier } = require('../services/tiers')
-const { recomputeCafeRatingSummary, recomputeUserContributorStats } = require('../services/recompute')
-const { THRESHOLD: LOCAL_BADGE_THRESHOLD } = require('../config/localBadge')
+const { User, Cafe, CafeRating, Flag } = require('../_models/models')
+const { JWT_SECRET, isAdminEmail } = require('../_middleware/auth')
+const { generateToken, hashToken } = require('../_services/tokens')
+const { sendEmail } = require('../_services/email')
+const categories = require('../_config/categories')
+const { FLAG_REASONS, REJECTION_REASONS } = require('../_config/reasons')
+const { getTier } = require('../_services/tiers')
+const { recomputeCafeRatingSummary, recomputeUserContributorStats } = require('../_services/recompute')
+const { THRESHOLD: LOCAL_BADGE_THRESHOLD } = require('../_config/localBadge')
 
-const { findAddress, reverseGeocode, reverseGeocodeAddress } = require("../services/nominatim");
-const { findNearbyBusiness } = require("../services/overpass");
-const { parseOpeningHours } = require("../services/openingHours");
+const { findAddress, reverseGeocode, reverseGeocodeAddress } = require("../_services/nominatim");
+const { findNearbyBusiness } = require("../_services/overpass");
+const { parseOpeningHours } = require("../_services/openingHours");
 
 const isValidPassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(password)
 const isValidUsername = (username) => /^[a-z0-9_]{3,20}$/.test(username)
@@ -21,7 +21,7 @@ const ADMIN_SESSION_MS = 1000 * 60 * 60 * 4 // 4 hours — a much shorter blast 
 const EMAIL_VERIFICATION_EXPIRY_MS = 1000 * 60 * 60 * 24 // 24 hours
 const PASSWORD_RESET_EXPIRY_MS = 1000 * 60 * 60 // 1 hour — more sensitive than email verification
 
-const { FRONTEND_URL } = require('../config/frontendUrl')
+const { FRONTEND_URL } = require('../_config/frontendUrl')
 
 
 /* User controllers ----------------------------------------------------------------------*/

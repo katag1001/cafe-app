@@ -1,5 +1,5 @@
-const { Cafe, CafeRating, User } = require('../models/models')
-const categoryRegistry = require('../config/categories')
+const { Cafe, CafeRating, User } = require('../_models/models')
+const categoryRegistry = require('../_config/categories')
 
 const toMinutes = (hhmm) => {
   if (typeof hhmm !== 'string') return null

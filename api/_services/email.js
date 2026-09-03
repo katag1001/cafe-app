@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer')
-const emailConfig = require('../config/email')
+const emailConfig = require('../_config/email')
 
 let transporter
 

@@ -1,7 +1,7 @@
 const router = require('express').Router()
-const controller = require('../controllers/controllers')
-const { requireAuth, optionalAuth, requireAdmin } = require('../middleware/auth')
-const { loginLimiter, accountActionLimiter } = require('../middleware/rateLimit')
+const controller = require('../_controllers/controllers')
+const { requireAuth, optionalAuth, requireAdmin } = require('../_middleware/auth')
+const { loginLimiter, accountActionLimiter } = require('../_middleware/rateLimit')
 
 // Test routes
 router.get('/getTest', controller.getTest)

@@ -1,4 +1,4 @@
-const tiers = require('../config/tiers')
+const tiers = require('../_config/tiers')
 
 // Pure lookup, no DB access — used both when freezing a weight onto a new
 // rating and anywhere a tier badge needs displaying (Phase 8).

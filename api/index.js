@@ -1,13 +1,16 @@
 // Must run before any local module (routes -> controllers -> middleware) is
 // required, since several of those read env vars at module-load time.
-require('dotenv').config()
+// Path is explicit (not cwd-relative) because dev:api launches this via
+// `npm --prefix api start`, which changes cwd to api/ — the shared .env
+// lives at the repo root, alongside the frontend's.
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') })
 
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
-const routes = require('./routes/routes.js')
-const { FRONTEND_URL } = require('./config/frontendUrl')
+const routes = require('./_routes/routes.js')
+const { FRONTEND_URL } = require('./_config/frontendUrl')
 
 const app = express()
 const port = process.env.PORT || 4444
