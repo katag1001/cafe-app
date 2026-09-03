@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const { FLAG_REASONS, REJECTION_REASONS } = require('../_config/reasons')
 
 /* User models ----------------------------------------------------------------------*/
