@@ -5,20 +5,24 @@ function CategoryFilterBar({ selectedCategories, onToggleCategory, openNow, onTo
 
   return (
     <div className="category-filter-bar">
-      {categories.map((category) => (
-        <button
-          key={category.id}
-          type="button"
-          className={selectedCategories.includes(category.id) ? "active" : ""}
-          onClick={() => onToggleCategory(category.id)}
-        >
-          {category.label}
-        </button>
-      ))}
+      <div className="category-filter-group">
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            type="button"
+            className={selectedCategories.includes(category.id) ? "active" : ""}
+            onClick={() => onToggleCategory(category.id)}
+          >
+            {category.label}
+          </button>
+        ))}
+      </div>
 
-      <button type="button" className={openNow ? "active" : ""} onClick={onToggleOpenNow}>
-        Open now
-      </button>
+      <div className="open-now-filter-group">
+        <button type="button" className={openNow ? "active" : ""} onClick={onToggleOpenNow}>
+          Open now
+        </button>
+      </div>
     </div>
   );
 }

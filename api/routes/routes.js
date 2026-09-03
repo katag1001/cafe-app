@@ -48,6 +48,7 @@ router.post('/users/me/favorites/:cafeId', requireAuth, controller.toggleFavorit
 
 // Profile
 router.get('/users/me/rated-cafes', requireAuth, controller.getMyRatedCafes)
+router.get('/users/local', controller.getLocalUsers)
 router.get('/users/:username/profile', controller.getPublicProfile)
 
 // Admin routes — requireAdmin re-checks ADMIN_EMAILS live on every request

@@ -1,4 +1,5 @@
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+const NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse";
 
 const findAddress = async ({
   street,
@@ -72,6 +73,47 @@ const findAddress = async ({
   return location;
 };
 
+// Coordinates -> city/country, used to resolve "where am I" from the
+// browser's Geolocation API (which only ever returns lat/lng) into the same
+// city/country strings stored on Cafe.address and User.contributorStats.cities.
+const reverseGeocode = async ({ latitude, longitude }) => {
+  const url = new URL(NOMINATIM_REVERSE_URL);
+
+  url.searchParams.set("lat", String(latitude));
+  url.searchParams.set("lon", String(longitude));
+  url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("zoom", "10");
+
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": "Testapp/1.0 (katarinag1001@gmail.com)",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Nominatim reverse request failed: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const result = await response.json();
+  const address = result?.address;
+
+  if (!address) {
+    return null;
+  }
+
+  const city = address.city || address.town || address.village || address.municipality;
+
+  if (!city || !address.country) {
+    return null;
+  }
+
+  return { city, country: address.country };
+};
+
 module.exports = {
   findAddress,
+  reverseGeocode,
 };

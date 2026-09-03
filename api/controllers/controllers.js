@@ -7,8 +7,9 @@ const categories = require('../config/categories')
 const { FLAG_REASONS, REJECTION_REASONS } = require('../config/reasons')
 const { getTier } = require('../services/tiers')
 const { recomputeCafeRatingSummary, recomputeUserContributorStats } = require('../services/recompute')
+const { THRESHOLD: LOCAL_BADGE_THRESHOLD } = require('../config/localBadge')
 
-const { findAddress } = require("../services/nominatim");
+const { findAddress, reverseGeocode } = require("../services/nominatim");
 const { findNearbyBusiness } = require("../services/overpass");
 const { parseOpeningHours } = require("../services/openingHours");
 
@@ -1118,7 +1119,7 @@ const getTopComments = async (req, res) => {
       const cityEntry = rating.userId.contributorStats?.cities?.find(
         (c) => c.city === cafe.address.city && c.country === cafe.address.country,
       );
-      const isLocal = (cityEntry?.count || 0) > 20;
+      const isLocal = (cityEntry?.count || 0) > LOCAL_BADGE_THRESHOLD;
 
       comments.push({
         username: rating.userId.username,
@@ -1350,6 +1351,21 @@ const deleteMyRating = async (req, res) => {
 
 /* Profile controllers ----------------------------------------------------------------------*/
 
+// Shared by the public profile and the "Browse user faves" local-users list
+// so both surfaces compute badges the same way, at read time, from
+// contributorStats — never stored (PRD.md §8.4).
+const computeUserBadges = (user) => {
+  const categoryTiers = (user.contributorStats?.categories || [])
+    .map((c) => ({ categoryId: c.categoryId, tier: getTier(c.count) }))
+    .filter((c) => c.tier);
+
+  const localBadges = (user.contributorStats?.cities || [])
+    .filter((c) => c.count > LOCAL_BADGE_THRESHOLD)
+    .map((c) => ({ city: c.city, country: c.country }));
+
+  return { categoryTiers, localBadges };
+};
+
 // GET /users/:username/profile — fully public, no auth. Badges are computed
 // at read time from contributorStats, never stored (PRD.md §8.4).
 const getPublicProfile = async (req, res) => {
@@ -1359,13 +1375,7 @@ const getPublicProfile = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found." });
     }
 
-    const categoryTiers = (user.contributorStats?.categories || [])
-      .map((c) => ({ categoryId: c.categoryId, tier: getTier(c.count) }))
-      .filter((c) => c.tier);
-
-    const localBadges = (user.contributorStats?.cities || [])
-      .filter((c) => c.count > 20)
-      .map((c) => ({ city: c.city, country: c.country }));
+    const { categoryTiers, localBadges } = computeUserBadges(user);
 
     const favorites = await Cafe.find({ _id: { $in: user.favorites } }).select("name address");
 
@@ -1433,6 +1443,48 @@ const getMyRatedCafes = async (req, res) => {
       .sort((a, b) => (b.ownScore ?? -1) - (a.ownScore ?? -1));
 
     return res.status(200).json({ success: true, ratedCafes });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// GET /users/local?lat=&lng= — "Browse user faves": resolves the given
+// coordinates (from the browser's Geolocation API, which only returns
+// lat/lng) to a city via reverse geocoding, then lists every user who has
+// crossed that city's "Local" badge threshold (PRD.md §8.4), with all of
+// their badges. City/country matching is case-insensitive since
+// Cafe.address.city/country is free-typed at cafe-submission time and may
+// not match Nominatim's casing exactly.
+const getLocalUsers = async (req, res) => {
+  try {
+    const latitude = Number(req.query.lat);
+    const longitude = Number(req.query.lng);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return res.status(400).json({ success: false, message: "Valid lat/lng query params are required." });
+    }
+
+    const location = await reverseGeocode({ latitude, longitude });
+    if (!location) {
+      return res.status(404).json({ success: false, message: "Could not determine a city for that location." });
+    }
+
+    const users = await User.find({
+      active: true,
+      "contributorStats.cities": {
+        $elemMatch: {
+          city: new RegExp(`^${escapeRegex(location.city)}$`, "i"),
+          country: new RegExp(`^${escapeRegex(location.country)}$`, "i"),
+          count: { $gt: LOCAL_BADGE_THRESHOLD },
+        },
+      },
+    });
+
+    const profiles = users.map((user) => ({ username: user.username, ...computeUserBadges(user) }));
+
+    return res.status(200).json({ success: true, city: location.city, country: location.country, users: profiles });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -1578,6 +1630,7 @@ module.exports = {
   getTopComments,
   getPublicProfile,
   getMyRatedCafes,
+  getLocalUsers,
   createFlag,
   getPendingCafes,
   approveCafe,

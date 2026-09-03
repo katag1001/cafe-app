@@ -25,10 +25,22 @@
 
 .category-filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  gap: 10px;
   padding: 10px;
   border-bottom: 1px solid var(--border);
+}
+
+.category-filter-group,
+.open-now-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.open-now-filter-group {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
 }
 
 .category-filter-bar button {

@@ -1,0 +1,27 @@
+.browse-user-faves-page {
+  padding: 24px;
+  text-align: left;
+}
+
+.local-user-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.local-user-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.local-user-item a {
+  font-weight: 600;
+  color: var(--text-h);
+}

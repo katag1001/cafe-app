@@ -11,11 +11,13 @@ import NewCafe from './pages/NewCafe'
 import AdminPage from './pages/AdminPage'
 import RateCafePage from './pages/RateCafePage'
 import ProfilePage from './pages/ProfilePage'
+import BrowseUserFavesPage from './pages/BrowseUserFavesPage'
 import MyAreaPage from './pages/MyAreaPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import ResendVerificationPage from './pages/ResendVerificationPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ViewOneCafe from './components/cafes/view_cafes/ViewOneCafe'
 import { fetchCurrentUser, logoutCurrentUser } from './components/login/authCache'
@@ -59,7 +61,7 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Header currentUser={currentUser} onLogout={handleLogout} />
+      <Header currentUser={currentUser} />
       <Toast notifications={notifications} onDismiss={dismissNotification} />
 
       <Routes>
@@ -70,6 +72,10 @@ function App() {
         <Route path="/resend-verification" element={<ResendVerificationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route
+          path="/change-password"
+          element={<ChangePasswordPage currentUser={currentUser} authLoading={authLoading} />}
+        />
         <Route path="/newcafe" element={<NewCafe currentUser={currentUser} authLoading={authLoading} />} />
         <Route
           path="/cafes/:id"
@@ -85,6 +91,7 @@ function App() {
         />
         <Route path="/admin" element={<AdminPage currentUser={currentUser} authLoading={authLoading} />} />
         <Route path="/users/:username" element={<ProfilePage currentUser={currentUser} />} />
+        <Route path="/browse-user-faves" element={<BrowseUserFavesPage />} />
         <Route
           path="/my-area"
           element={

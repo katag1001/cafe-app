@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import MySubmissions from "../components/myarea/MySubmissions";
 import MyRatings from "../components/myarea/MyRatings";
 import MyFavorites from "../components/myarea/MyFavorites";
@@ -24,6 +25,10 @@ function MyAreaPage({ currentUser, authLoading, onAuthChange, onLogout }) {
     <div className="my-area-page">
       <h1>My Area</h1>
 
+      <p>
+        <Link to={`/users/${currentUser.username}`}>View my profile</Link>
+      </p>
+
       <section>
         <h2>My Submissions</h2>
         <MySubmissions />
@@ -41,7 +46,7 @@ function MyAreaPage({ currentUser, authLoading, onAuthChange, onLogout }) {
 
       <section>
         <h2>Account Settings</h2>
-        <AccountSettings currentUser={currentUser} onAuthChange={onAuthChange} onLogout={onLogout} />
+        <AccountSettings onAuthChange={onAuthChange} onLogout={onLogout} />
       </section>
     </div>
   );
