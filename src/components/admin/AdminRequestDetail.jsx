@@ -1,11 +1,53 @@
 import { useEffect, useState } from "react";
 
+const WEEK_DAYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+const buildDraft = (item) => {
+  if (!item) return null;
+
+  const hoursByDay = Object.fromEntries((item.openingHours || []).map((entry) => [entry.day, entry]));
+
+  return {
+    name: item.name || "",
+    address: {
+      street: item.address?.street || "",
+      houseNumber: item.address?.houseNumber || "",
+      city: item.address?.city || "",
+      postcode: item.address?.postcode || "",
+      country: item.address?.country || "",
+    },
+    latitude: item.location?.latitude != null ? String(item.location.latitude) : "",
+    longitude: item.location?.longitude != null ? String(item.location.longitude) : "",
+    phone: item.phone || "",
+    website: item.website || "",
+    openingHours: Object.fromEntries(
+      WEEK_DAYS.map((day) => [
+        day,
+        {
+          closed: !hoursByDay[day],
+          open: hoursByDay[day]?.open || "",
+          close: hoursByDay[day]?.close || "",
+        },
+      ]),
+    ),
+  };
+};
+
 function AdminRequestDetail({ queueType, item, onActionComplete }) {
   const [rejectionReasons, setRejectionReasons] = useState([]);
   const [selectedReason, setSelectedReason] = useState("");
   const [otherText, setOtherText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [draft, setDraft] = useState(() => buildDraft(item));
 
   useEffect(() => {
     if (queueType === "pending") {
@@ -16,12 +58,6 @@ function AdminRequestDetail({ queueType, item, onActionComplete }) {
     }
   }, [queueType]);
 
-  useEffect(() => {
-    setSelectedReason("");
-    setOtherText("");
-    setError("");
-  }, [item]);
-
   if (!item) {
     return (
       <section className="admin-detail">
@@ -31,6 +67,18 @@ function AdminRequestDetail({ queueType, item, onActionComplete }) {
   }
 
   const handleApprove = async () => {
+    if (!draft.latitude.trim() || !draft.longitude.trim()) {
+      setError("Latitude and longitude are required.");
+      return;
+    }
+
+    const latitude = Number(draft.latitude);
+    const longitude = Number(draft.longitude);
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+      setError("Latitude and longitude must be numbers.");
+      return;
+    }
+
     setBusy(true);
     setError("");
 
@@ -38,6 +86,19 @@ function AdminRequestDetail({ queueType, item, onActionComplete }) {
       const response = await fetch(`/api/admin/cafes/${item._id}/approve`, {
         method: "POST",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: draft.name,
+          address: draft.address,
+          location: { latitude, longitude },
+          phone: draft.phone,
+          website: draft.website,
+          openingHours: WEEK_DAYS.filter((day) => !draft.openingHours[day].closed).map((day) => ({
+            day,
+            open: draft.openingHours[day].open,
+            close: draft.openingHours[day].close,
+          })),
+        }),
       });
 
       const data = await response.json();
@@ -50,6 +111,20 @@ function AdminRequestDetail({ queueType, item, onActionComplete }) {
       setBusy(false);
     }
   };
+
+  const updateDraftField = (field, value) => setDraft((prev) => ({ ...prev, [field]: value }));
+
+  const updateAddressField = (field, value) =>
+    setDraft((prev) => ({ ...prev, address: { ...prev.address, [field]: value } }));
+
+  const updateOpeningHoursField = (day, field, value) =>
+    setDraft((prev) => ({
+      ...prev,
+      openingHours: {
+        ...prev.openingHours,
+        [day]: { ...prev.openingHours[day], [field]: value },
+      },
+    }));
 
   const handleReject = async () => {
     if (!selectedReason) {
@@ -105,16 +180,125 @@ function AdminRequestDetail({ queueType, item, onActionComplete }) {
   if (queueType === "pending") {
     return (
       <section className="admin-detail">
-        <h2>{item.name}</h2>
-        <p>
-          {item.address.street} {item.address.houseNumber}, {item.address.postcode}{" "}
-          {item.address.city}, {item.address.country}
-        </p>
+        <label>
+          Name
+          <input type="text" value={draft.name} onChange={(e) => updateDraftField("name", e.target.value)} />
+        </label>
+
+        <fieldset>
+          <legend>Address</legend>
+          <label>
+            Street
+            <input
+              type="text"
+              value={draft.address.street}
+              onChange={(e) => updateAddressField("street", e.target.value)}
+            />
+          </label>
+          <label>
+            House number
+            <input
+              type="text"
+              value={draft.address.houseNumber}
+              onChange={(e) => updateAddressField("houseNumber", e.target.value)}
+            />
+          </label>
+          <label>
+            City
+            <input
+              type="text"
+              value={draft.address.city}
+              onChange={(e) => updateAddressField("city", e.target.value)}
+            />
+          </label>
+          <label>
+            Postcode
+            <input
+              type="text"
+              value={draft.address.postcode}
+              onChange={(e) => updateAddressField("postcode", e.target.value)}
+            />
+          </label>
+          <label>
+            Country
+            <input
+              type="text"
+              value={draft.address.country}
+              onChange={(e) => updateAddressField("country", e.target.value)}
+            />
+          </label>
+        </fieldset>
+
         <p>Added by: {item.createdBy?.username}</p>
+
+        <fieldset>
+          <legend>Coordinates</legend>
+          <label>
+            Latitude
+            <input
+              type="text"
+              value={draft.latitude}
+              onChange={(e) => updateDraftField("latitude", e.target.value)}
+            />
+          </label>
+          <label>
+            Longitude
+            <input
+              type="text"
+              value={draft.longitude}
+              onChange={(e) => updateDraftField("longitude", e.target.value)}
+            />
+          </label>
+        </fieldset>
+
+        <label>
+          Phone
+          <input type="text" value={draft.phone} onChange={(e) => updateDraftField("phone", e.target.value)} />
+        </label>
+
+        <label>
+          Website
+          <input
+            type="text"
+            value={draft.website}
+            onChange={(e) => updateDraftField("website", e.target.value)}
+          />
+        </label>
+
+        <fieldset>
+          <legend>Opening hours</legend>
+          {WEEK_DAYS.map((day) => (
+            <div key={day} className="admin-opening-hours-row">
+              <span>{day}</span>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!draft.openingHours[day].closed}
+                  onChange={(e) => updateOpeningHoursField(day, "closed", !e.target.checked)}
+                />
+                Open
+              </label>
+              {!draft.openingHours[day].closed && (
+                <>
+                  <input
+                    type="time"
+                    value={draft.openingHours[day].open}
+                    onChange={(e) => updateOpeningHoursField(day, "open", e.target.value)}
+                  />
+                  <input
+                    type="time"
+                    value={draft.openingHours[day].close}
+                    onChange={(e) => updateOpeningHoursField(day, "close", e.target.value)}
+                  />
+                </>
+              )}
+            </div>
+          ))}
+        </fieldset>
 
         <div className="admin-actions">
           <button type="button" onClick={handleApprove} disabled={busy}>
-            Approve
+            Save & Approve
           </button>
         </div>
 

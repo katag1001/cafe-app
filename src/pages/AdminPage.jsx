@@ -64,7 +64,12 @@ function AdminPage({ currentUser, authLoading }) {
 
   return (
     <div className="admin-page container">
-      <AdminRequestDetail queueType={queueType} item={selectedItem} onActionComplete={loadItems} />
+      <AdminRequestDetail
+        key={selectedItem?._id || "none"}
+        queueType={queueType}
+        item={selectedItem}
+        onActionComplete={loadItems}
+      />
 
       <AdminQueueList
         queueType={queueType}

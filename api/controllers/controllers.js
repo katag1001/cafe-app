@@ -1612,12 +1612,41 @@ const getPendingCafes = async (req, res) => {
   }
 };
 
+// Approval doubles as the admin's chance to correct whatever the submitter
+// got wrong (a bad auto-geocoded pin, a typo'd phone number, missing hours)
+// before the cafe goes live — every field below is optional; anything
+// omitted is left as the submitter left it.
 const approveCafe = async (req, res) => {
   try {
+    const { name, address, location, phone, website, openingHours } = req.body;
+
     const cafe = await Cafe.findById(req.params.id);
     if (!cafe) {
       return res.status(404).json({ success: false, message: "Cafe not found" });
     }
+
+    if (name !== undefined) cafe.name = name;
+
+    if (address !== undefined) {
+      const validationError = validateAddressFields(address);
+      if (validationError) {
+        return res.status(400).json({ success: false, message: validationError });
+      }
+      cafe.address = address;
+    }
+
+    if (location !== undefined) {
+      const { latitude, longitude } = location || {};
+      if (typeof latitude !== "number" || typeof longitude !== "number") {
+        return res.status(400).json({ success: false, message: "Invalid coordinates." });
+      }
+      cafe.location = { latitude, longitude };
+      cafe.geoLocation = { type: "Point", coordinates: [longitude, latitude] };
+    }
+
+    if (phone !== undefined) cafe.phone = phone;
+    if (website !== undefined) cafe.website = website;
+    if (openingHours !== undefined) cafe.openingHours = openingHours;
 
     cafe.addressVerification.status = "verified";
     cafe.addressVerification.verifiedAt = new Date();

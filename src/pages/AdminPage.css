@@ -21,6 +21,57 @@
   margin-bottom: var(--space-2);
 }
 
+.admin-detail label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--space-3);
+}
+
+.admin-detail input[type="text"],
+.admin-detail input[type="time"] {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  font-weight: 400;
+  font-size: var(--text-base);
+}
+
+.admin-detail fieldset {
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.admin-detail legend {
+  font-weight: 700;
+  padding: 0 var(--space-2);
+}
+
+.admin-opening-hours-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.admin-opening-hours-row span {
+  width: 6rem;
+  text-transform: capitalize;
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
+
+.admin-opening-hours-row label {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 0;
+}
+
 .admin-queue-list {
   flex: 1;
   min-width: 280px;
