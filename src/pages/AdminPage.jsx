@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import AdminQueueList from "../components/admin/AdminQueueList";
 import AdminRequestDetail from "../components/admin/AdminRequestDetail";
 import "./AdminPage.css";
 
 function AdminPage({ currentUser, authLoading }) {
-  const [queueType, setQueueType] = useState("pending");
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Deep-linked from admin notification emails (?type=pending|flags&id=...)
+  // so approving/rejecting/resolving a specific item is one click from inbox.
+  const initialType = searchParams.get("type") === "flags" ? "flags" : "pending";
+  const linkedId = searchParams.get("id");
+
+  const [queueType, setQueueType] = useState(initialType);
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +25,14 @@ function AdminPage({ currentUser, authLoading }) {
     try {
       const response = await fetch(url, { credentials: "include" });
       const data = await response.json();
-      setItems(queueType === "pending" ? data.cafes || [] : data.flags || []);
+      const fetchedItems = queueType === "pending" ? data.cafes || [] : data.flags || [];
+      setItems(fetchedItems);
+
+      if (linkedId) {
+        const linkedItem = fetchedItems.find((item) => item._id === linkedId);
+        if (linkedItem) setSelectedItem(linkedItem);
+        setSearchParams({}, { replace: true });
+      }
     } catch {
       setItems([]);
     } finally {

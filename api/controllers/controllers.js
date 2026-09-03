@@ -580,6 +580,10 @@ const addNotification = async (userId, notification) => {
   }
 };
 
+// Deep-links an admin notification email straight to the relevant queue item
+// — AdminPage reads these query params to pre-select the queue tab and item.
+const adminReviewLink = (queueType, id) => `${FRONTEND_URL}/admin?type=${queueType}&id=${id}`;
+
 // Shared by every path that can make a cafe verified (instant auto-verify on
 // create/edit, and admin approval) — email + one-time toast, per PRD.md §6.4.
 const notifyCafeVerified = (cafe, creatorEmail) => {
@@ -697,7 +701,8 @@ const createCafe = async (req, res) => {
         process.env.ADMIN_EMAILS,
         "New cafe requires review",
         `<p>A new cafe submission needs review: <strong>${cafe.name}</strong></p>` +
-          `<p>${address.street} ${address.houseNumber}, ${address.postcode} ${address.city}, ${address.country}</p>`,
+          `<p>${address.street} ${address.houseNumber}, ${address.postcode} ${address.city}, ${address.country}</p>` +
+          `<p><a href="${adminReviewLink("pending", cafe._id)}">Review this submission</a></p>`,
       );
     }
 
@@ -993,7 +998,8 @@ const updateCafe = async (req, res) => {
         sendEmail(
           process.env.ADMIN_EMAILS,
           "Cafe resubmission requires review",
-          `<p>A resubmitted cafe needs review: <strong>${cafe.name}</strong></p>`,
+          `<p>A resubmitted cafe needs review: <strong>${cafe.name}</strong></p>` +
+            `<p><a href="${adminReviewLink("pending", cafe._id)}">Review this submission</a></p>`,
         );
       }
     }
@@ -1163,6 +1169,15 @@ const createFlag = async (req, res) => {
       reason,
       otherText: reason === "other" ? otherText : undefined,
     });
+
+    const reasonLabel = FLAG_REASONS.find((r) => r.id === reason)?.label || reason;
+    sendEmail(
+      process.env.ADMIN_EMAILS,
+      "Cafe flagged for review",
+      `<p><strong>${cafe.name}</strong> has been flagged: ${reasonLabel}</p>` +
+        (otherText ? `<p>${otherText}</p>` : "") +
+        `<p><a href="${adminReviewLink("flags", flag._id)}">Review this flag</a></p>`,
+    );
 
     return res.status(201).json({ success: true, flag });
   } catch (error) {
