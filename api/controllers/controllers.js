@@ -9,7 +9,7 @@ const { getTier } = require('../services/tiers')
 const { recomputeCafeRatingSummary, recomputeUserContributorStats } = require('../services/recompute')
 const { THRESHOLD: LOCAL_BADGE_THRESHOLD } = require('../config/localBadge')
 
-const { findAddress, reverseGeocode } = require("../services/nominatim");
+const { findAddress, reverseGeocode, reverseGeocodeAddress } = require("../services/nominatim");
 const { findNearbyBusiness } = require("../services/overpass");
 const { parseOpeningHours } = require("../services/openingHours");
 
@@ -612,6 +612,31 @@ const notifyCafeRejected = (cafe, creatorEmail, reasonText) => {
         `<p>Reason: ${reasonText}</p>` +
         `<p>You can edit and resubmit it from your account.</p>`,
     );
+  }
+};
+
+// GET /cafes/geocode/reverse?lat=&lng= — prefills the add-cafe address form
+// from the browser's Geolocation API. Convenience only: the fields it
+// returns stay editable and still go through checkCafeAddress/createCafe's
+// own verification, never trusted as-is.
+const reverseCafeAddress = async (req, res) => {
+  try {
+    const latitude = Number(req.query.lat);
+    const longitude = Number(req.query.lng);
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return res.status(400).json({ success: false, message: "Valid lat/lng query params are required." });
+    }
+
+    const address = await reverseGeocodeAddress({ latitude, longitude });
+
+    if (!address) {
+      return res.status(404).json({ success: false, message: "Could not determine an address for that location." });
+    }
+
+    return res.status(200).json({ success: true, address });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -1631,6 +1656,7 @@ module.exports = {
   deactivateAccount,
   changeUsername,
   getMyNotifications,
+  reverseCafeAddress,
   checkCafeAddress,
   createCafe,
   getCafes,

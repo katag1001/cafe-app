@@ -28,6 +28,7 @@ router.get('/me/notifications', requireAuth, controller.getMyNotifications)
 // Cafe routes
 // NOTE: '/cafes/mine' must be registered before '/cafes/:id', or Express
 // would try to treat "mine" as an :id value.
+router.get('/cafes/geocode/reverse', requireAuth, controller.reverseCafeAddress)
 router.post('/cafes/check', requireAuth, controller.checkCafeAddress)
 router.get('/cafes/mine', requireAuth, controller.getMyCafes)
 router.post('/cafes', requireAuth, controller.createCafe)

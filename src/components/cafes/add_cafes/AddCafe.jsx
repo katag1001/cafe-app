@@ -29,6 +29,7 @@ const AddCafe = ({ currentUser }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -150,6 +151,50 @@ const AddCafe = ({ currentUser }) => {
     setError("");
   };
 
+  // Prefills the address fields from the browser's current location, via
+  // reverse geocoding. Purely a convenience — the fields stay editable and
+  // still go through the same verification as a manually typed address.
+  const handleUseLocation = () => {
+    setError("");
+    setMessage("");
+
+    if (!navigator.geolocation) {
+      setError("Your browser doesn't support geolocation.");
+      return;
+    }
+
+    setLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+
+          const response = await fetch(
+            `/api/cafes/geocode/reverse?lat=${latitude}&lng=${longitude}`,
+            { credentials: "include" },
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to look up your address");
+          }
+
+          setFormData((prev) => ({ ...prev, ...data.address }));
+        } catch (locateError) {
+          setError(locateError.message);
+        } finally {
+          setLocating(false);
+        }
+      },
+      () => {
+        setError("Couldn't get your location — check your browser's location permission.");
+        setLocating(false);
+      },
+    );
+  };
+
   if (step === "confirm") {
     return (
       <div className="add-cafe">
@@ -230,6 +275,14 @@ const AddCafe = ({ currentUser }) => {
   return (
     <div className="add-cafe">
       <h1>Add a Cafe</h1>
+
+      <button
+        type="button"
+        onClick={handleUseLocation}
+        disabled={locating || loading}
+      >
+        {locating ? "Finding your location..." : "Use my current location"}
+      </button>
 
       <form onSubmit={handleCheck}>
         <div className="form-group">

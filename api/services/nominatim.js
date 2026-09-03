@@ -113,7 +113,52 @@ const reverseGeocode = async ({ latitude, longitude }) => {
   return { city, country: address.country };
 };
 
+// Coordinates -> street-level address fields, used to prefill the "Add a
+// Cafe" form from the browser's Geolocation API. Distinct from
+// reverseGeocode() above (which only needs city/country at zoom=10 for
+// badge matching) — this asks for building-level detail and returns the
+// same field shape the add-cafe form/Cafe.address use.
+const reverseGeocodeAddress = async ({ latitude, longitude }) => {
+  const url = new URL(NOMINATIM_REVERSE_URL);
+
+  url.searchParams.set("lat", String(latitude));
+  url.searchParams.set("lon", String(longitude));
+  url.searchParams.set("format", "json");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("zoom", "18");
+
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent": "Testapp/1.0 (katarinag1001@gmail.com)",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Nominatim reverse request failed: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const result = await response.json();
+  const address = result?.address;
+
+  if (!address) {
+    return null;
+  }
+
+  const city = address.city || address.town || address.village || address.municipality;
+
+  return {
+    street: address.road || "",
+    houseNumber: address.house_number || "",
+    city: city || "",
+    postcode: address.postcode || "",
+    country: address.country || "",
+  };
+};
+
 module.exports = {
   findAddress,
   reverseGeocode,
+  reverseGeocodeAddress,
 };

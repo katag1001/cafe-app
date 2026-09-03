@@ -2,7 +2,7 @@
   position: relative;
   overflow: hidden;
   background: linear-gradient(160deg, var(--cocoa-950) 0%, var(--cocoa-800) 100%);
-  padding: var(--space-8) 0 calc(var(--space-8) + 24px);
+  padding: var(--space-5) 0 calc(var(--space-8) + 24px);
   text-align: center;
 }
 
