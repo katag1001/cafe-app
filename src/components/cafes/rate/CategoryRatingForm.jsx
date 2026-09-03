@@ -18,7 +18,7 @@ function hasValue(value) {
   return true;
 }
 
-function CategoryRatingForm({ cafeId, categoryDef }) {
+function CategoryRatingForm({ cafeId, categoryDef, onSubmitted }) {
   const [score, setScore] = useState(null);
   const [answerValues, setAnswerValues] = useState({});
   const [comment, setComment] = useState("");
@@ -58,6 +58,7 @@ function CategoryRatingForm({ cafeId, categoryDef }) {
       if (!response.ok) throw new Error(data.message || "Failed to submit rating");
 
       setMessage("Rating submitted!");
+      onSubmitted?.();
     } catch (submitError) {
       setError(submitError.message);
     } finally {

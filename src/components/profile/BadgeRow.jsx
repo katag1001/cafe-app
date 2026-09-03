@@ -8,10 +8,7 @@ function BadgeRow({ categoryTiers, localBadges }) {
   return (
     <div className="badge-row">
       {categoryTiers.map((entry) => (
-        <span className="badge-item" key={entry.categoryId}>
-          <TierBadge tier={entry.tier} />
-          <span className="badge-caption">{entry.categoryId}</span>
-        </span>
+        <TierBadge key={entry.categoryId} tier={entry.tier} categoryId={entry.categoryId} />
       ))}
 
       {localBadges.map((badge) => (

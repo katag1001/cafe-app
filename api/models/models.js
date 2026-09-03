@@ -287,8 +287,13 @@ const cafeRatingSchema = new mongoose.Schema(
     categories: [
       {
         categoryId: { type: String, required: true },
-        score: { type: Number, required: true, min: 1, max: 5 },
-        weight: { type: Number, required: true },
+        // Absent (rather than required) so a comment-only contribution —
+        // added straight from a category's comment panel, with no score —
+        // can share the same per-category entry shape without a dummy
+        // score. Recompute/tier logic must keep treating "no score" as "not
+        // a rating" (CLAUDE.md §4.3).
+        score: { type: Number, min: 1, max: 5 },
+        weight: { type: Number },
         answers: [
           {
             questionId: { type: String, required: true },

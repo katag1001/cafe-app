@@ -47,7 +47,3 @@
   border-color: var(--color-primary-border);
   color: var(--pistachio-700);
 }
-
-.local-user-item .badge-caption {
-  color: var(--color-text-muted);
-}

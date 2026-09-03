@@ -1,7 +1,12 @@
+import { useLocation } from 'react-router-dom'
+
 import ViewCafeMap from '../components/cafes/view_cafes/ViewCafeMap'
 import './Homepage.css'
 
 function Homepage() {
+  const location = useLocation()
+  const message = location.state?.message
+
   return (
     <main className="homepage">
       <section className="hero">
@@ -12,6 +17,7 @@ function Homepage() {
             Real ratings from real regulars — wifi, seating, quiet hours, and more. Pan the map,
             filter by what matters, and pick your next spot.
           </p>
+          {message && <p className="message">{message}</p>}
         </div>
       </section>
 

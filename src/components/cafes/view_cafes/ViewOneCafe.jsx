@@ -74,7 +74,7 @@ function ViewOneCafe({ currentUser, onAuthChange }) {
           </div>
 
           <div className="top-comments-column">
-            <TopComments cafeId={cafe._id} categoryId={activeTab} />
+            <TopComments cafeId={cafe._id} categoryId={activeTab} currentUser={currentUser} />
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import "./AddCafe.css";
 
@@ -17,6 +18,8 @@ const emptyHoursDraft = () =>
   DAYS.reduce((acc, day) => ({ ...acc, [day]: { open: "", close: "" } }), {});
 
 const AddCafe = ({ currentUser }) => {
+  const navigate = useNavigate();
+
   // step: "form" (initial address entry) -> "confirm" (review/edit before saving)
   const [step, setStep] = useState("form");
   const [formData, setFormData] = useState(emptyFormData);
@@ -26,7 +29,6 @@ const AddCafe = ({ currentUser }) => {
   const [phoneDraft, setPhoneDraft] = useState("");
   const [websiteDraft, setWebsiteDraft] = useState("");
 
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -101,7 +103,6 @@ const AddCafe = ({ currentUser }) => {
 
     setLoading(true);
     setError("");
-    setMessage("");
 
     const openingHours = DAYS.filter(
       (day) => hoursDraft[day].open && hoursDraft[day].close,
@@ -127,18 +128,12 @@ const AddCafe = ({ currentUser }) => {
         throw new Error(data.message || "Failed to create cafe");
       }
 
-      setMessage(
+      const successMessage =
         data.cafe.addressVerification.status === "verified"
           ? "Cafe successfully added and is now live!"
-          : "Cafe submitted — we couldn't automatically confirm it, so it'll appear once an admin reviews it.",
-      );
+          : "Cafe submitted — we couldn't automatically confirm it, so it'll appear once an admin reviews it.";
 
-      setFormData(emptyFormData);
-      setCheckResult(null);
-      setHoursDraft(emptyHoursDraft());
-      setPhoneDraft("");
-      setWebsiteDraft("");
-      setStep("form");
+      navigate("/", { state: { message: successMessage } });
     } catch (submitError) {
       setError(submitError.message);
     } finally {
@@ -156,7 +151,6 @@ const AddCafe = ({ currentUser }) => {
   // still go through the same verification as a manually typed address.
   const handleUseLocation = () => {
     setError("");
-    setMessage("");
 
     if (!navigator.geolocation) {
       setError("Your browser doesn't support geolocation.");
@@ -369,7 +363,6 @@ const AddCafe = ({ currentUser }) => {
       </form>
 
       {error && <p className="message">{error}</p>}
-      {message && <p className="message">{message}</p>}
     </div>
   );
 };

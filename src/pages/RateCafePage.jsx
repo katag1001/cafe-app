@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useCategories } from "../hooks/useCategories";
 import QuickReviewForm from "../components/cafes/rate/QuickReviewForm";
 import CategoryRatingForm from "../components/cafes/rate/CategoryRatingForm";
@@ -8,6 +8,7 @@ import CategoryRatingForm from "../components/cafes/rate/CategoryRatingForm";
 // section stacked, each independently submittable (PRD.md §8.1). Not a modal.
 function RateCafePage({ currentUser, authLoading }) {
   const { id, categoryId } = useParams();
+  const navigate = useNavigate();
   const { categories, loading } = useCategories();
 
   if (authLoading) {
@@ -50,7 +51,11 @@ function RateCafePage({ currentUser, authLoading }) {
     return (
       <main className="container rate-page">
         <h1>Rate this cafe</h1>
-        <CategoryRatingForm cafeId={id} categoryDef={categoryDef} />
+        <CategoryRatingForm
+          cafeId={id}
+          categoryDef={categoryDef}
+          onSubmitted={() => navigate(`/cafes/${id}`)}
+        />
       </main>
     );
   }

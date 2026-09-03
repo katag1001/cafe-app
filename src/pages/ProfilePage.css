@@ -68,11 +68,6 @@
   color: var(--pistachio-200);
 }
 
-.badge-caption {
-  font-size: var(--text-xs);
-  color: var(--color-text-on-dark-muted);
-}
-
 .profile-body {
   display: flex;
   gap: var(--space-6);

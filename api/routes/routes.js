@@ -42,6 +42,7 @@ router.put('/cafes/:id/rating/overall', requireAuth, controller.submitOverallRat
 router.put('/cafes/:id/rating/:categoryId', requireAuth, controller.submitCategoryRating)
 router.delete('/cafes/:id/rating/:categoryId', requireAuth, controller.deleteMyRating)
 router.get('/cafes/:id/categories/:categoryId/comments', controller.getTopComments)
+router.put('/cafes/:id/categories/:categoryId/comment', requireAuth, controller.addCategoryComment)
 
 // Favorites
 router.get('/users/me/favorites', requireAuth, controller.getMyFavorites)

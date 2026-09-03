@@ -1216,7 +1216,10 @@ const createFlag = async (req, res) => {
 // — the basis for both their tier badge and the weight a new rating freezes
 // (PRD.md §8.2).
 const countUserCategoryRatings = (userId, categoryId) =>
-  CafeRating.countDocuments({ userId, categories: { $elemMatch: { categoryId } } });
+  CafeRating.countDocuments({
+    userId,
+    categories: { $elemMatch: { categoryId, score: { $exists: true } } },
+  });
 
 // Drops unknown questionIds and malformed/empty values, so a client can
 // never write arbitrary data into ratingSummary.answers. An unanswered
@@ -1389,6 +1392,59 @@ const deleteMyRating = async (req, res) => {
   }
 };
 
+// PUT /cafes/:id/categories/:categoryId/comment — a comment-only
+// contribution: no score, no question answers, so it never touches
+// weight/tier/ratingSummary averages (those stay score-driven only, per
+// recompute.js). Lets a user leave feedback on a category's comment panel
+// without going through the full "Rate this cafe" flow.
+const addCategoryComment = async (req, res) => {
+  try {
+    const { id: cafeId, categoryId } = req.params;
+    const categoryDef = categories.find((c) => c.id === categoryId);
+
+    if (!categoryDef) {
+      return res.status(400).json({ success: false, message: "Unknown category." });
+    }
+
+    const trimmedComment = typeof req.body?.comment === "string" ? req.body.comment.trim() : "";
+    if (!trimmedComment) {
+      return res.status(400).json({ success: false, message: "Comment cannot be empty." });
+    }
+
+    const cafe = await Cafe.findById(cafeId);
+    if (!cafe || cafe.addressVerification?.status !== "verified") {
+      return res.status(404).json({ success: false, message: "Cafe not found" });
+    }
+
+    // Ranked by the commenter's already-rated experience in this category —
+    // a comment-only submission carries no score, so it never advances that
+    // count itself (see countUserCategoryRatings).
+    const ratedCount = await countUserCategoryRatings(req.user.id, categoryId);
+
+    let rating = await CafeRating.findOne({ cafeId, userId: req.user.id });
+    const existingEntry = rating?.categories?.find((c) => c.categoryId === categoryId);
+
+    if (existingEntry) {
+      existingEntry.comment = trimmedComment;
+      existingEntry.commentRankSnapshot = ratedCount;
+    } else if (rating) {
+      rating.categories.push({ categoryId, comment: trimmedComment, commentRankSnapshot: ratedCount });
+    } else {
+      rating = new CafeRating({
+        cafeId,
+        userId: req.user.id,
+        categories: [{ categoryId, comment: trimmedComment, commentRankSnapshot: ratedCount }],
+      });
+    }
+
+    await rating.save();
+
+    return res.status(200).json({ success: true, message: "Comment added." });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 /* Profile controllers ----------------------------------------------------------------------*/
 
 // Shared by the public profile and the "Browse user faves" local-users list
@@ -1433,8 +1489,13 @@ const getPublicProfile = async (req, res) => {
         cafeId: r.cafeId._id,
         cafeName: r.cafeId.name,
         overallScore: r.overallScore,
-        categories: (r.categories || []).map((c) => ({ categoryId: c.categoryId, score: c.score })),
-      }));
+        // Comment-only entries carry no score — they're feedback, not a
+        // rating, so they're left out of this "rated cafes" list.
+        categories: (r.categories || [])
+          .filter((c) => typeof c.score === "number")
+          .map((c) => ({ categoryId: c.categoryId, score: c.score })),
+      }))
+      .filter((r) => r.overallScore != null || r.categories.length);
 
     return res.status(200).json({
       success: true,
@@ -1464,7 +1525,13 @@ const getMyRatedCafes = async (req, res) => {
     const ratedCafes = ratings
       .filter((r) => r.cafeId)
       .map((r) => {
-        const categoryScores = (r.categories || []).map((c) => c.score);
+        // Comment-only entries carry no score — they're feedback, not a
+        // rating, so they're left out of this "rated cafes" list.
+        const ratedCategories = (r.categories || [])
+          .filter((c) => typeof c.score === "number")
+          .map((c) => ({ categoryId: c.categoryId, score: c.score }));
+
+        const categoryScores = ratedCategories.map((c) => c.score);
         const ownScore =
           r.overallScore != null
             ? r.overallScore
@@ -1476,10 +1543,11 @@ const getMyRatedCafes = async (req, res) => {
           cafeId: r.cafeId._id,
           cafeName: r.cafeId.name,
           overallScore: r.overallScore,
-          categories: (r.categories || []).map((c) => ({ categoryId: c.categoryId, score: c.score })),
+          categories: ratedCategories,
           ownScore,
         };
       })
+      .filter((r) => r.overallScore != null || r.categories.length)
       .sort((a, b) => (b.ownScore ?? -1) - (a.ownScore ?? -1));
 
     return res.status(200).json({ success: true, ratedCafes });
@@ -1666,6 +1734,7 @@ module.exports = {
   submitOverallRating,
   submitCategoryRating,
   deleteMyRating,
+  addCategoryComment,
   toggleFavorite,
   getMyFavorites,
   getTopComments,

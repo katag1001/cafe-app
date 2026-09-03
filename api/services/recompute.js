@@ -133,16 +133,21 @@ async function recomputeUserContributorStats(userId) {
   const cityCounts = new Map()
 
   for (const rating of ratings) {
+    // Only entries carrying an actual score count as a "rating" — a
+    // comment-only entry (no score) is feedback, not a rating, and must
+    // never advance tier progress or the Local badge on its own.
+    const scoredEntries = rating.categories?.filter((entry) => typeof entry.score === 'number') || []
+
     // Category counts reflect the user's own rating activity regardless of
     // whether the cafe they rated still exists (e.g. was later hard-closed)
     // — their contribution/experience shouldn't retroactively vanish.
-    rating.categories?.forEach((entry) => {
+    scoredEntries.forEach((entry) => {
       categoryCounts.set(entry.categoryId, (categoryCounts.get(entry.categoryId) || 0) + 1)
     })
 
     // City counts do need the cafe's current address, so they're skipped if
     // the cafe has since been deleted (rating.cafeId fails to populate).
-    if (rating.categories?.length && rating.cafeId) {
+    if (scoredEntries.length && rating.cafeId) {
       const city = rating.cafeId.address?.city
       const country = rating.cafeId.address?.country
       if (city && country) {
