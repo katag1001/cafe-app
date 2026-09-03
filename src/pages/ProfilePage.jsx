@@ -37,9 +37,16 @@ function ProfilePage({ currentUser }) {
 
   return (
     <div className="profile-page">
-      <h1>{profile.username}</h1>
+      <div className="profile-hero">
+        <div className="container">
+          <div className="profile-avatar">{profile.username.charAt(0).toUpperCase()}</div>
 
-      <BadgeRow categoryTiers={profile.categoryTiers} localBadges={profile.localBadges} />
+          <div className="profile-heading">
+            <h1>{profile.username}</h1>
+            <BadgeRow categoryTiers={profile.categoryTiers} localBadges={profile.localBadges} />
+          </div>
+        </div>
+      </div>
 
       <div className="profile-body">
         <FavoritesColumn

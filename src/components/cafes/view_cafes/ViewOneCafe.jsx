@@ -46,14 +46,16 @@ function ViewOneCafe({ currentUser, onAuthChange }) {
   const categorySummary = cafe.ratingSummary?.categories?.find((c) => c.categoryId === activeTab);
 
   return (
-    <div className="cafe-detail-page">
-      <h1>{cafe.name}</h1>
+    <div className="cafe-detail-page container">
+      <div className="cafe-header">
+        <h1>{cafe.name}</h1>
 
-      {cafe.addressVerification?.status !== "verified" && (
-        <p>
-          <em>Status: {cafe.addressVerification?.status}</em>
-        </p>
-      )}
+        {cafe.addressVerification?.status !== "verified" && (
+          <span className="pill status-pill">
+            Status: {cafe.addressVerification?.status}
+          </span>
+        )}
+      </div>
 
       <CafeTabs categories={categories} activeTab={activeTab} onTabChange={setActiveTab} />
 

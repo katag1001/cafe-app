@@ -1,32 +1,64 @@
 .admin-page {
   display: flex;
-  gap: 24px;
-  padding: 24px;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-5) var(--space-8);
+  max-width: var(--container-width);
+  margin: 0 auto;
   text-align: left;
+  align-items: flex-start;
 }
 
 .admin-detail {
   flex: 2;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
+  min-width: 320px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-detail h2 {
+  margin-bottom: var(--space-2);
 }
 
 .admin-queue-list {
   flex: 1;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  min-width: 280px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-4));
 }
 
 .admin-queue-toggle {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  background: var(--color-bg-alt);
+  padding: var(--space-1);
+  border-radius: var(--radius-pill);
+}
+
+.admin-queue-toggle button {
+  flex: 1;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  cursor: pointer;
 }
 
 .admin-queue-toggle button.active {
-  font-weight: 700;
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-queue-list ul {
@@ -35,25 +67,66 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .admin-queue-list li {
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
   cursor: pointer;
   border: 1px solid transparent;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  transition: background-color var(--transition-fast);
+}
+
+.admin-queue-list li:hover {
+  background: var(--color-bg-alt);
 }
 
 .admin-queue-list li.selected {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-ink);
+  font-weight: 700;
 }
 
 .admin-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: center;
-  margin-top: 16px;
+  margin-top: var(--space-4);
   flex-wrap: wrap;
+}
+
+.admin-actions select,
+.admin-actions input {
+  padding: var(--space-2) var(--space-3);
+}
+
+.admin-actions button {
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--color-primary-strong);
+  color: var(--color-text-on-dark);
+}
+
+.admin-actions button:hover:not(:disabled) {
+  background: var(--pistachio-700);
+}
+
+@media (max-width: 900px) {
+  .admin-page {
+    flex-direction: column-reverse;
+  }
+
+  .admin-queue-list {
+    position: static;
+    width: 100%;
+  }
 }

@@ -9,9 +9,17 @@ function CafeCard({ cafe }) {
 
   return (
     <div className="cafe-card" onClick={handleClick}>
-      <h3>{cafe.name}</h3>
+      <div className="cafe-card-main">
+        <h3>{cafe.name}</h3>
+        {cafe.address && (
+          <p className="cafe-card-address">
+            {cafe.address.street} {cafe.address.houseNumber}, {cafe.address.city}
+          </p>
+        )}
+      </div>
+
       {cafe.displayScore != null && (
-        <p className="cafe-card-score">{cafe.displayScore.toFixed(1)} / 5</p>
+        <span className="cafe-card-score">{cafe.displayScore.toFixed(1)}</span>
       )}
     </div>
   );

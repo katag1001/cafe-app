@@ -16,7 +16,7 @@ function RateCafePage({ currentUser, authLoading }) {
 
   if (!currentUser) {
     return (
-      <main>
+      <main className="container rate-page">
         <p>
           Please <a href="/login">log in</a> to rate a cafe.
         </p>
@@ -36,7 +36,7 @@ function RateCafePage({ currentUser, authLoading }) {
     }
 
     return (
-      <main>
+      <main className="container rate-page">
         <h1>Rate this cafe</h1>
         <CategoryRatingForm cafeId={id} categoryDef={categoryDef} />
       </main>
@@ -44,7 +44,7 @@ function RateCafePage({ currentUser, authLoading }) {
   }
 
   return (
-    <main>
+    <main className="container rate-page">
       <h1>Rate this cafe</h1>
       <QuickReviewForm cafeId={id} />
       {categories.map((categoryDef) => (
