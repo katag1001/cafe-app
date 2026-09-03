@@ -4,7 +4,7 @@ const passwordRule = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/
 const usernameRule = /^[a-z0-9_]{3,20}$/
 
 export default function Register({ onRegisterSuccess }) {
-  const [form, setForm] = useState({ email: '', username: '', password: '' })
+  const [form, setForm] = useState({ email: '', username: '', password: '', confirmPassword: '' })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -20,7 +20,7 @@ export default function Register({ onRegisterSuccess }) {
     const email = form.email.trim().toLowerCase()
     const username = form.username.trim().toLowerCase()
 
-    if (!email || !username || !form.password) {
+    if (!email || !username || !form.password || !form.confirmPassword) {
       setError('Email, username, and password are required.')
       return
     }
@@ -32,6 +32,11 @@ export default function Register({ onRegisterSuccess }) {
 
     if (!passwordRule.test(form.password)) {
       setError('Password must be at least 8 characters long and include a letter, a number, and a special character.')
+      return
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match.')
       return
     }
 
@@ -53,7 +58,7 @@ export default function Register({ onRegisterSuccess }) {
         throw new Error(data.message || 'Unable to create the account.')
       }
 
-      setForm({ email: '', username: '', password: '' })
+      setForm({ email: '', username: '', password: '', confirmPassword: '' })
       onRegisterSuccess?.()
     } catch (requestError) {
       setError(requestError.message)
@@ -98,6 +103,18 @@ export default function Register({ onRegisterSuccess }) {
             value={form.password}
             onChange={handleChange}
             placeholder="Secure password"
+            required
+          />
+        </label>
+
+        <label>
+          Confirm password
+          <input
+            type="password"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            placeholder="Re-enter password"
             required
           />
         </label>

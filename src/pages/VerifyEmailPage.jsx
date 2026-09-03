@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 
 function VerifyEmailPage() {
@@ -7,6 +7,7 @@ function VerifyEmailPage() {
 
   const [status, setStatus] = useState("loading"); // loading | success | error
   const [message, setMessage] = useState("");
+  const requestedTokenRef = useRef(null);
 
   useEffect(() => {
     if (!token) {
@@ -14,6 +15,13 @@ function VerifyEmailPage() {
       setMessage("Missing verification token.");
       return;
     }
+
+    // The token is single-use server-side, so StrictMode's dev-only double
+    // effect invocation must not send this request twice.
+    if (requestedTokenRef.current === token) {
+      return;
+    }
+    requestedTokenRef.current = token;
 
     fetch(`/api/verify-email?token=${encodeURIComponent(token)}`)
       .then((response) => response.json())
