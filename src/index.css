@@ -1,13 +1,6 @@
-/* =========================================================================
-   CafeFinder design system
-   Every color, size, radius, shadow, and font used anywhere in the app is
-   defined here as a custom property. Components must reference these
-   tokens rather than hardcoding values, so the whole visual design can be
-   swapped later by editing this one file (CLAUDE.md §5.4).
-   ========================================================================= */
 
 :root {
-  /* ---- Brand palette (seeded from .context/style/colour-scheme.md) ---- */
+  /* ---- Brand palette  ---- */
   --pistachio-50: #f4f7f1;
   --pistachio-100: #e4ecdd;
   --pistachio-200: #cddcc0;
@@ -21,7 +14,6 @@
   --cream-50: #fdfbf5;
   --cream-100: #f7f2e5;
   --cream-200: #e8e1cf;
-  /* the exact rgba(232,225,207) from colour-scheme.md */
   --cream-300: #d9cfae;
   --cream-400: #c3b78e;
 

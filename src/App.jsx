@@ -4,6 +4,7 @@ import './App.css'
 
 import Header from './components/general/Header'
 import Toast from './components/general/Toast'
+import ScrollToTop from './components/general/ScrollToTop'
 import Homepage from './pages/Homepage'
 import LoginPage  from './pages/LoginPage'
 import Register from './pages/Register'
@@ -61,6 +62,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Header currentUser={currentUser} />
       <Toast notifications={notifications} onDismiss={dismissNotification} />
 

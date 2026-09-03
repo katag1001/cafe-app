@@ -228,7 +228,7 @@ There's no test command — this project uses manual QA only.
 
 ## Environment variables
 
-Copy `api/.env.example` to `api/.env` and fill in real values for local development (production values are set through the Vercel project dashboard instead, never committed):
+Copy `api/.env.example` to `api/.env`, and the root `.env.example` to `.env.local`, filling in real values for local development (production values are set through the Vercel project dashboard instead, never committed):
 
 | Variable | Purpose |
 |---|---|
@@ -237,12 +237,22 @@ Copy `api/.env.example` to `api/.env` and fill in real values for local developm
 | `PORT` | Local backend port (defaults to 4444) |
 | `ADMIN_EMAILS` | Comma-separated list of admin email addresses, checked live on every admin request |
 | `EMAIL_FROM_ADDRESS` / `EMAIL_APP_PASSWORD` / `EMAIL_FROM_NAME` | Gmail SMTP sender config for Nodemailer (`EMAIL_APP_PASSWORD` is a generated Gmail App Password, not the account's normal password) |
-| `FRONTEND_URL` | Optional override; auto-detected from Vercel's own env vars in production or `http://localhost:5173` locally |
+| `FRONTEND_URL` | Recommended to set explicitly in production to the deployed URL (e.g. `https://your-app.vercel.app`) — used for links embedded in emails and CORS. Falls back to Vercel's own `VERCEL_PROJECT_PRODUCTION_URL`/`VERCEL_URL` (only populated if the project has *Enable access to System Environment Variables* checked) or `http://localhost:5173` locally |
 | `NODE_ENV` | Set automatically by Vercel in production; leave unset locally so cookies work over plain `http` |
+| `VITE_PROTOMAPS_KEY` | Root-level (not `api/`), frontend build-time var — Protomaps API key for the map tiles. Must be set in Vercel's dashboard env vars too, since Vite bakes it into the build |
 
 ## Deployment
 
-Frontend and backend both deploy from this one repository as a single Vercel project. The most important constraint shaping the backend's structure is Vercel's Hobby-plan cap of roughly 12 serverless functions — since every file directly under `/api/` becomes its own function, **the entire backend is one Express app exported from the single `api/index.js` entry point**, with every route added via `api/routes/routes.js` regardless of how many features it grows to cover. A `vercel.json` rewrite (`/api/:path*` → `/api/index`) routes all API traffic to that one function, since Vercel's default file-based routing would otherwise only map the literal `/api` or `/api/index` path. The MongoDB connection is cached and reused across invocations rather than reopened per-request, since serverless functions can cold-start and run concurrently.
+Frontend and backend both deploy from this one repository as a single Vercel project. The most important constraint shaping the backend's structure is Vercel's Hobby-plan cap of roughly 12 serverless functions — since every file directly under `/api/` becomes its own function, **the entire backend is one Express app exported from the single `api/index.js` entry point**, with every route added via `api/routes/routes.js` regardless of how many features it grows to cover. A `vercel.json` rewrite (`/api/:path*` → `/api/index`) routes all API traffic to that one function, since Vercel's default file-based routing would otherwise only map the literal `/api` or `/api/index` path. A second catch-all rewrite (`/(.*)` → `/index.html`) provides SPA fallback for React Router's client-side routes (e.g. `/users/:username`) — Vercel serves any real static file first, so this only affects paths with no matching file. The MongoDB connection is cached and reused across invocations rather than reopened per-request, since serverless functions can cold-start and run concurrently.
+
+### Go-live checklist
+
+Steps that live outside this repo, in Vercel/MongoDB Atlas's own dashboards:
+
+1. **MongoDB Atlas network access** — add `0.0.0.0/0` to the cluster's IP access list. Vercel serverless functions don't have static outbound IPs, so a fixed allowlist entry won't work.
+2. **Vercel project → Environment Variables** — set every variable from the table above (`MONGO`, `JWT_SECRET`, `ADMIN_EMAILS`, `EMAIL_FROM_ADDRESS`, `EMAIL_APP_PASSWORD`, `EMAIL_FROM_NAME`, `VITE_PROTOMAPS_KEY`). Leave `NODE_ENV` and `PORT` unset — Vercel sets `NODE_ENV=production` itself.
+3. **Set `FRONTEND_URL` explicitly** once the production domain is known (the `*.vercel.app` URL, or a custom domain), so password-reset/verification emails link to the right place from the first deploy — this avoids depending on the *System Environment Variables* dashboard toggle.
+4. **Root repo, not `api/`, as the Vercel project root** — this is one repository with two `package.json` files (root frontend, `api/` backend); Vercel's zero-config detection handles both from the repo root, no `builds`/`functions` override needed.
 
 ## Known scope decisions & what's deliberately left out
 
