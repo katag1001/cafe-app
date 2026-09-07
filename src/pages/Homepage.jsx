@@ -14,7 +14,7 @@ function Homepage() {
           <p className="eyebrow">Crowd-sourced &amp; caffeinated</p>
           <h1>Find your next favorite cafe</h1>
           <p className="hero-subtitle">
-            Real ratings from real regulars — wifi, seating, quiet hours, and more. Pan the map,
+            Real ratings from real regulars. Pan the map,
             filter by what matters, and pick your next spot.
           </p>
           {message && <p className="message">{message}</p>}
