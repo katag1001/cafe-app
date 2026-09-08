@@ -5,7 +5,7 @@ const { generateToken, hashToken } = require('../_services/tokens')
 const { sendEmail } = require('../_services/email')
 const categories = require('../_config/categories')
 const { FLAG_REASONS, REJECTION_REASONS } = require('../_config/reasons')
-const { getTier } = require('../_services/tiers')
+const { getTier, isTopTier } = require('../_services/tiers')
 const { recomputeCafeRatingSummary, recomputeUserContributorStats } = require('../_services/recompute')
 const { THRESHOLD: LOCAL_BADGE_THRESHOLD } = require('../_config/localBadge')
 
@@ -1571,10 +1571,14 @@ const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // GET /users/local?lat=&lng= — "Browse user faves": resolves the given
 // coordinates (from the browser's Geolocation API, which only returns
 // lat/lng) to a city via reverse geocoding, then lists every user who has
-// crossed that city's "Local" badge threshold (PRD.md §8.4), with all of
-// their badges. City/country matching is case-insensitive since
-// Cafe.address.city/country is free-typed at cafe-submission time and may
-// not match Nominatim's casing exactly.
+// crossed that city's "Local" badge threshold (PRD.md §8.4), along with
+// their favorite cafes and category badges. City/country matching is
+// case-insensitive since Cafe.address.city/country is free-typed at
+// cafe-submission time and may not match Nominatim's casing exactly.
+//
+// Category badges are restricted to the top two tiers (Coffee Connoisseur /
+// Café Oracle, via isTopTier()) — this page highlights this city's stand-out
+// raters, not everyone who's ever crossed the first tier of any category.
 const getLocalUsers = async (req, res) => {
   try {
     const latitude = Number(req.query.lat);
@@ -1600,7 +1604,23 @@ const getLocalUsers = async (req, res) => {
       },
     });
 
-    const profiles = users.map((user) => ({ username: user.username, ...computeUserBadges(user) }));
+    const favoriteIds = users.flatMap((user) => user.favorites);
+    const favoriteCafes = await Cafe.find({ _id: { $in: favoriteIds } }).select("name");
+    const favoriteCafesById = new Map(favoriteCafes.map((cafe) => [String(cafe._id), cafe]));
+
+    const profiles = users.map((user) => {
+      const { categoryTiers, localBadges } = computeUserBadges(user);
+
+      return {
+        username: user.username,
+        categoryTiers: categoryTiers.filter((entry) => isTopTier(entry.tier)),
+        localBadges,
+        favorites: (user.favorites || [])
+          .map((cafeId) => favoriteCafesById.get(String(cafeId)))
+          .filter(Boolean)
+          .map((cafe) => ({ _id: cafe._id, name: cafe.name })),
+      };
+    });
 
     return res.status(200).json({ success: true, city: location.city, country: location.country, users: profiles });
   } catch (error) {

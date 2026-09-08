@@ -63,6 +63,16 @@ function BrowseUserFavesPage() {
                 <li key={user.username} className="local-user-item">
                   <Link to={`/users/${user.username}`}>{user.username}</Link>
                   <BadgeRow categoryTiers={user.categoryTiers} localBadges={user.localBadges} />
+
+                  {user.favorites.length > 0 && (
+                    <ul className="local-user-favorites">
+                      {user.favorites.map((cafe) => (
+                        <li key={cafe._id}>
+                          <Link to={`/cafes/${cafe._id}`}>{cafe.name}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>

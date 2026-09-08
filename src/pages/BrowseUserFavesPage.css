@@ -47,3 +47,21 @@
   border-color: var(--color-primary-border);
   color: var(--pistachio-700);
 }
+
+.local-user-favorites {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.local-user-favorites li::before {
+  content: "☕ ";
+}
+
+.local-user-favorites a {
+  font-weight: 600;
+  color: var(--color-primary-strong);
+}

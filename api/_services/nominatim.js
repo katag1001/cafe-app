@@ -84,6 +84,10 @@ const reverseGeocode = async ({ latitude, longitude }) => {
   url.searchParams.set("format", "json");
   url.searchParams.set("addressdetails", "1");
   url.searchParams.set("zoom", "10");
+  // Without this, Nominatim returns city/country names in the place's local
+  // language (e.g. "España" for Spain), which never matches the English
+  // strings stored in Cafe.address / User.contributorStats.cities.
+  url.searchParams.set("accept-language", "en");
 
   const response = await fetch(url, {
     headers: {
@@ -126,6 +130,9 @@ const reverseGeocodeAddress = async ({ latitude, longitude }) => {
   url.searchParams.set("format", "json");
   url.searchParams.set("addressdetails", "1");
   url.searchParams.set("zoom", "18");
+  // Keep this in English too, since it feeds Cafe.address.country — the same
+  // field reverseGeocode() above matches against for the "Local" badge.
+  url.searchParams.set("accept-language", "en");
 
   const response = await fetch(url, {
     headers: {

@@ -15,4 +15,15 @@ function getTier(count) {
   return tier ? { tier: tier.tier, name: tier.name, weight: tier.weight } : null
 }
 
-module.exports = { getTier }
+// The top two rungs of the ladder (currently "Coffee Connoisseur" and "Café
+// Oracle") — derived from the tiers list length rather than a hardcoded tier
+// number, so it stays correct if the ladder gains/loses tiers. Used by
+// surfaces (e.g. "Browse user faves") that only want to highlight a user's
+// highest-tier badges, not every tier they've ever crossed.
+const TOP_TIER_CUTOFF = tiers.length - 1
+
+function isTopTier(tier) {
+  return !!tier && tier.tier >= TOP_TIER_CUTOFF
+}
+
+module.exports = { getTier, isTopTier }
