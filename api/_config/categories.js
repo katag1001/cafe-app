@@ -1,7 +1,3 @@
-// The single source of truth for every rating category and its question
-// bank (PRD.md §9.2). Adding a category, or a question to an existing one,
-// should only ever require editing this file — see CLAUDE.md §4.2/§4.4.
-//
 // Answer types: 'yesno' | 'select' | 'scale' | 'time'
 // - 'select' options carry an optional `exclusiveOption` — selecting that
 //   option deselects every other option for the same question (PRD.md §9.1).

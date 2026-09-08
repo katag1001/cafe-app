@@ -26,6 +26,8 @@ const AddCafe = ({ currentUser }) => {
 
   const [checkResult, setCheckResult] = useState(null);
   const [hoursDraft, setHoursDraft] = useState(emptyHoursDraft());
+  const [sameAllDays, setSameAllDays] = useState(true);
+  const [commonHours, setCommonHours] = useState({ open: "", close: "" });
   const [phoneDraft, setPhoneDraft] = useState("");
   const [websiteDraft, setWebsiteDraft] = useState("");
 
@@ -47,6 +49,25 @@ const AddCafe = ({ currentUser }) => {
       ...prev,
       [day]: { ...prev[day], [field]: value },
     }));
+  };
+
+  // Sliding toggle at the top of the hours fieldset. While on, one shared
+  // open/close time is applied to every day; turning it off leaves whatever
+  // was last applied in place per day, so the user can override individual
+  // days from there.
+  const handleToggleSameHours = (e) => {
+    const checked = e.target.checked;
+    setSameAllDays(checked);
+
+    if (checked) {
+      setHoursDraft(DAYS.reduce((acc, day) => ({ ...acc, [day]: commonHours }), {}));
+    }
+  };
+
+  const handleCommonHoursChange = (field, value) => {
+    const next = { ...commonHours, [field]: value };
+    setCommonHours(next);
+    setHoursDraft(DAYS.reduce((acc, day) => ({ ...acc, [day]: next }), {}));
   };
 
   const address = {
@@ -86,6 +107,28 @@ const AddCafe = ({ currentUser }) => {
         if (draft[day]) draft[day] = { open, close };
       });
       setHoursDraft(draft);
+
+      // Default the "same every day" toggle on when there's nothing pre-filled
+      // to preserve, or when the pre-filled hours already happen to be
+      // identical across the whole week. Otherwise leave it off so the
+      // per-day OSM data isn't clobbered.
+      const filledDays = DAYS.filter((day) => draft[day].open && draft[day].close);
+      const uniform =
+        filledDays.length === DAYS.length &&
+        filledDays.every(
+          (day) => draft[day].open === draft[filledDays[0]].open && draft[day].close === draft[filledDays[0]].close,
+        );
+
+      if (filledDays.length === 0) {
+        setSameAllDays(true);
+        setCommonHours({ open: "", close: "" });
+      } else if (uniform) {
+        setSameAllDays(true);
+        setCommonHours(draft[filledDays[0]]);
+      } else {
+        setSameAllDays(false);
+      }
+
       setPhoneDraft(data.phone || "");
       setWebsiteDraft(data.website || "");
 
@@ -234,22 +277,51 @@ const AddCafe = ({ currentUser }) => {
           <fieldset>
             <legend>Opening hours (optional)</legend>
 
-            {DAYS.map((day) => (
-              <div className="form-group hours-row" key={day}>
-                <label>{day}</label>
+            <div className="form-group same-hours-toggle">
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={sameAllDays}
+                  onChange={handleToggleSameHours}
+                />
+                <span className="switch-track" />
+              </label>
+              <span>Same hours every day</span>
+            </div>
+
+            {sameAllDays ? (
+              <div className="form-group hours-row">
+                <label>All days</label>
                 <input
                   type="time"
-                  value={hoursDraft[day].open}
-                  onChange={(e) => handleHoursChange(day, "open", e.target.value)}
+                  value={commonHours.open}
+                  onChange={(e) => handleCommonHoursChange("open", e.target.value)}
                 />
                 <span>to</span>
                 <input
                   type="time"
-                  value={hoursDraft[day].close}
-                  onChange={(e) => handleHoursChange(day, "close", e.target.value)}
+                  value={commonHours.close}
+                  onChange={(e) => handleCommonHoursChange("close", e.target.value)}
                 />
               </div>
-            ))}
+            ) : (
+              DAYS.map((day) => (
+                <div className="form-group hours-row" key={day}>
+                  <label>{day}</label>
+                  <input
+                    type="time"
+                    value={hoursDraft[day].open}
+                    onChange={(e) => handleHoursChange(day, "open", e.target.value)}
+                  />
+                  <span>to</span>
+                  <input
+                    type="time"
+                    value={hoursDraft[day].close}
+                    onChange={(e) => handleHoursChange(day, "close", e.target.value)}
+                  />
+                </div>
+              ))
+            )}
           </fieldset>
 
           <button type="button" onClick={handleBack} disabled={loading}>
