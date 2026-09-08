@@ -45,7 +45,7 @@ function aggregateAnswers(categoryDef, entries) {
       const yes = values.filter((v) => v === true).length
       const no = values.filter((v) => v === false).length
       result.push({ questionId: question.id, tally: { yes, no } })
-    } else if (question.type === 'scale') {
+    } else if (question.type === 'scale' || question.type === 'quality') {
       const tally = {}
       question.options.forEach((opt) => { tally[opt] = 0 })
       values.forEach((v) => { if (tally[v] !== undefined) tally[v] += 1 })

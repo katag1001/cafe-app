@@ -1,5 +1,5 @@
 // Read-only display of the aggregated tallies from Cafe.ratingSummary,
-// mirroring the four answer types from the rating form (PRD.md §9.1) but
+// mirroring the answer types from the rating form (PRD.md §9.1) but
 // never editable here.
 
 function statusLabel(yesPercent) {
@@ -95,6 +95,7 @@ const DISPLAY_COMPONENTS = {
   yesno: YesNoDisplay,
   select: SelectDisplay,
   scale: ScaleDisplay,
+  quality: ScaleDisplay,
   time: TimeDisplay,
 };
 

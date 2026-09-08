@@ -1255,7 +1255,7 @@ const validateAnswers = (categoryDef, answers) => {
       const selected = value.filter((v) => question.options.includes(v));
       if (!selected.length) continue;
       validated.push({ questionId: question.id, value: selected });
-    } else if (question.type === "scale") {
+    } else if (question.type === "scale" || question.type === "quality") {
       if (!question.options.includes(value)) continue;
       validated.push({ questionId: question.id, value });
     } else if (question.type === "time") {

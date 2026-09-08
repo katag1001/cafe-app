@@ -2,12 +2,14 @@ import { useState } from "react";
 import AnswerYesNo from "./AnswerYesNo";
 import AnswerSelect from "./AnswerSelect";
 import AnswerScale from "./AnswerScale";
+import AnswerQuality from "./AnswerQuality";
 import AnswerTime from "./AnswerTime";
 
 const ANSWER_COMPONENTS = {
   yesno: AnswerYesNo,
   select: AnswerSelect,
   scale: AnswerScale,
+  quality: AnswerQuality,
   time: AnswerTime,
 };
 
