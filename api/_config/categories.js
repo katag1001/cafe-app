@@ -10,6 +10,19 @@ const SCALE_OPTIONS = ['None', 'Minimal', 'Lots', 'Loads']
 const QUALITY_OPTIONS = ['Poor', 'Average', 'Good', 'Great', 'Exceptional']
 
 module.exports = [
+    {
+    id: 'coffee',
+    label: 'Coffee',
+    questions: [
+      { id: 'coffee-quality', text: 'How would you describe the quality of the coffee?', type: 'quality', options: QUALITY_OPTIONS },
+      { id: 'specialty-coffee', text: 'Do they serve specialty coffee?', type: 'yesno' },
+      { id: 'roast-own-coffee', text: 'Do they roast their own coffee?', type: 'yesno' },
+      { id: 'choice-of-beans', text: 'Do they offer a choice of different beans?', type: 'yesno' },
+      { id: 'brewing-methods', text: 'Do they offer different brewing methods, such as espresso, pour-over, AeroPress, or batch brew?', type: 'yesno' },
+      { id: 'staff-knowledge', text: 'Do the staff demonstrate knowledge about the coffee they serve?', type: 'yesno' },
+      { id: 'core-part-of-offering', text: "Does the café's coffee feel like a core part of what they do, rather than an afterthought?", type: 'yesno' },
+    ],
+  },
   {
     id: 'computer',
     label: 'Computer',
@@ -68,17 +81,5 @@ module.exports = [
       { id: 'approachable-staff', text: 'If you needed help during a date, do you feel like it would be easy to approach a member of staff?', type: 'yesno' },
     ],
   },
-  {
-    id: 'coffee',
-    label: 'Coffee',
-    questions: [
-      { id: 'coffee-quality', text: 'How would you describe the quality of the coffee?', type: 'quality', options: QUALITY_OPTIONS },
-      { id: 'specialty-coffee', text: 'Do they serve specialty coffee?', type: 'yesno' },
-      { id: 'roast-own-coffee', text: 'Do they roast their own coffee?', type: 'yesno' },
-      { id: 'choice-of-beans', text: 'Do they offer a choice of different beans?', type: 'yesno' },
-      { id: 'brewing-methods', text: 'Do they offer different brewing methods, such as espresso, pour-over, AeroPress, or batch brew?', type: 'yesno' },
-      { id: 'staff-knowledge', text: 'Do the staff demonstrate knowledge about the coffee they serve?', type: 'yesno' },
-      { id: 'core-part-of-offering', text: "Does the café's coffee feel like a core part of what they do, rather than an afterthought?", type: 'yesno' },
-    ],
-  },
+
 ]

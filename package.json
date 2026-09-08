@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev:api": "npm --prefix api start",
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "node scripts/sync-maplibre-worker.js && vite",
+    "build": "node scripts/sync-maplibre-worker.js && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
