@@ -1,9 +1,30 @@
+import { useLayoutEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import './Header.css'
 
+// The mobile layout wraps nav links onto extra lines, so the header's real
+// height varies by breakpoint/content and can't be a fixed design token.
+// Keeping --header-height in sync lets any sticky element (e.g. RateCafePage)
+// offset itself below the header correctly at every viewport size.
 function Header({ currentUser }) {
+  const headerRef = useRef(null)
+
+  useLayoutEffect(() => {
+    const headerEl = headerRef.current
+    if (!headerEl) return
+
+    const updateHeight = () => {
+      document.documentElement.style.setProperty('--header-height', `${headerEl.offsetHeight}px`)
+    }
+
+    updateHeight()
+    const observer = new ResizeObserver(updateHeight)
+    observer.observe(headerEl)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <header className="header">
+    <header className="header" ref={headerRef}>
       <nav className="navbar container">
         <Link to="/" className="logo">
           Chocolate Pistachio

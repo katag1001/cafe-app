@@ -278,14 +278,55 @@
 /* ---------------------------------------------------------------------- */
 
 .rate-page {
-  max-width: 640px;
-  padding-top: var(--space-6);
   padding-bottom: var(--space-8);
   text-align: left;
 }
 
-.rate-page h1 {
-  margin-bottom: var(--space-5);
+.rate-page-sticky {
+  padding-top: var(--space-5);
+  position: sticky;
+  top: var(--header-height);
+  z-index: 50;
+  background: var(--color-bg);
+  padding-top: var(--space-5);
+  padding-bottom: var(--space-2);
+}
+
+.rate-page-sticky h1 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  overflow-x: auto;
+  margin-top: var(--space-2);
+  padding-bottom: var(--space-1);
+}
+
+.category-tabs button {
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.category-tabs button:hover {
+  border-color: var(--color-primary-strong);
+}
+
+.category-tabs button.active {
+  background: var(--color-primary-strong);
+  border-color: var(--color-primary-strong);
+  color: var(--color-text-on-dark);
 }
 
 .not-found-page {
@@ -343,8 +384,7 @@
   text-align: left;
 }
 
-.category-rating-form h3,
-.quick-review-form h3 {
+.category-rating-form h3 {
   margin-bottom: var(--space-4);
 }
 
@@ -363,6 +403,34 @@
 .category-rating-form button[type='submit']:hover:not(:disabled),
 .quick-review-form button[type='submit']:hover:not(:disabled) {
   background: var(--pistachio-700);
+}
+
+.quick-review-form {
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: 0;
+}
+
+.quick-review-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.quick-review-label {
+  font-weight: 700;
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.quick-review-row .answer-options {
+  margin-top: 0;
+}
+
+.quick-review-row button[type='submit'] {
+  margin-top: 0;
+  padding: var(--space-2) var(--space-4);
 }
 
 .answer-row {

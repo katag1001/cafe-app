@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import BadgeRow from "../components/profile/BadgeRow";
 import FavoritesColumn from "../components/profile/FavoritesColumn";
+import { getCategoryDisplayLabel } from "../config/categoryDisplayLabels";
 import "./ProfilePage.css";
 
 function ProfilePage({ currentUser }) {
@@ -80,7 +81,7 @@ function ProfilePage({ currentUser }) {
                   {rated.categories.map((category) => (
                     <span key={category.categoryId}>
                       {" "}
-                      · {category.categoryId}: {category.score}/5
+                      · {getCategoryDisplayLabel(category.categoryId)}: {category.score}/5
                     </span>
                   ))}
                 </li>

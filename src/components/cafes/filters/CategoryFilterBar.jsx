@@ -1,4 +1,5 @@
 import { useCategories } from "../../../hooks/useCategories";
+import { getCategoryDisplayLabel } from "../../../config/categoryDisplayLabels";
 
 function CategoryFilterBar({ selectedCategories, onToggleCategory, openNow, onToggleOpenNow }) {
   const { categories } = useCategories();
@@ -13,7 +14,7 @@ function CategoryFilterBar({ selectedCategories, onToggleCategory, openNow, onTo
             className={selectedCategories.includes(category.id) ? "active" : ""}
             onClick={() => onToggleCategory(category.id)}
           >
-            {category.label}
+            {getCategoryDisplayLabel(category.id, category.label)}
           </button>
         ))}
       </div>

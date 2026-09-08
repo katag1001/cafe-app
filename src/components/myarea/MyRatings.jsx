@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getCategoryDisplayLabel } from "../../config/categoryDisplayLabels";
 
 // Backed by the same /users/me/rated-cafes endpoint Phase 8's "Add to Top
 // 10" picker uses — one source of truth, two consumers.
@@ -48,7 +49,7 @@ function MyRatings() {
           {cafe.categories.map((category) => (
             <span key={category.categoryId}>
               {" "}
-              · {category.categoryId}: {category.score}/5{" "}
+              · {getCategoryDisplayLabel(category.categoryId)}: {category.score}/5{" "}
               <button type="button" onClick={() => handleDelete(cafe.cafeId, category.categoryId)}>
                 Delete
               </button>

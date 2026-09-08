@@ -39,24 +39,26 @@ function QuickReviewForm({ cafeId }) {
 
   return (
     <form className="quick-review-form" onSubmit={handleSubmit}>
-      <h3>Quick Review</h3>
+      <div className="quick-review-row">
+        <span className="quick-review-label">Quick Review</span>
 
-      <div className="answer-options">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            className={score === n ? "active" : ""}
-            onClick={() => setScore(n)}
-          >
-            {n}
-          </button>
-        ))}
+        <div className="answer-options">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              className={score === n ? "active" : ""}
+              onClick={() => setScore(n)}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+
+        <button type="submit" disabled={busy}>
+          {busy ? "Submitting..." : "Submit"}
+        </button>
       </div>
-
-      <button type="submit" disabled={busy}>
-        {busy ? "Submitting..." : "Submit Quick Review"}
-      </button>
 
       {message && <p className="message">{message}</p>}
       {error && <p className="error-message">{error}</p>}

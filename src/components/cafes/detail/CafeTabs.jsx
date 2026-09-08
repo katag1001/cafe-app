@@ -1,3 +1,5 @@
+import { getCategoryDisplayLabel } from "../../../config/categoryDisplayLabels";
+
 function CafeTabs({ categories, activeTab, onTabChange }) {
   return (
     <div className="cafe-tabs">
@@ -16,7 +18,7 @@ function CafeTabs({ categories, activeTab, onTabChange }) {
           className={activeTab === category.id ? "active" : ""}
           onClick={() => onTabChange(category.id)}
         >
-          {category.label}
+          {getCategoryDisplayLabel(category.id, category.label)}
         </button>
       ))}
     </div>

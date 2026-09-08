@@ -5,6 +5,7 @@ import CafeTabs from "../detail/CafeTabs";
 import CafeGeneralTab from "../detail/CafeGeneralTab";
 import CategoryBreakdown from "../detail/CategoryBreakdown";
 import TopComments from "../detail/TopComments";
+import { getCategoryDisplayLabel } from "../../../config/categoryDisplayLabels";
 import "./cafeDetail.css";
 
 function ViewOneCafe({ currentUser, onAuthChange }) {
@@ -68,7 +69,7 @@ function ViewOneCafe({ currentUser, onAuthChange }) {
 
             {currentUser && (
               <Link to={`/cafes/${cafe._id}/rate/${activeTab}`}>
-                Rate {activeCategoryDef?.label}
+                Rate {activeCategoryDef && getCategoryDisplayLabel(activeCategoryDef.id, activeCategoryDef.label)}
               </Link>
             )}
           </div>

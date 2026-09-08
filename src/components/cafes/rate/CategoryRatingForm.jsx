@@ -4,6 +4,7 @@ import AnswerSelect from "./AnswerSelect";
 import AnswerScale from "./AnswerScale";
 import AnswerQuality from "./AnswerQuality";
 import AnswerTime from "./AnswerTime";
+import { getCategoryDisplayLabel } from "../../../config/categoryDisplayLabels";
 
 const ANSWER_COMPONENTS = {
   yesno: AnswerYesNo,
@@ -70,7 +71,7 @@ function CategoryRatingForm({ cafeId, categoryDef, onSubmitted }) {
 
   return (
     <form className="category-rating-form" onSubmit={handleSubmit}>
-      <h3>{categoryDef.label}</h3>
+      <h3>{getCategoryDisplayLabel(categoryDef.id, categoryDef.label)}</h3>
 
       <div className="answer-row">
         <p>Overall score for this category</p>
@@ -112,7 +113,7 @@ function CategoryRatingForm({ cafeId, categoryDef, onSubmitted }) {
       </div>
 
       <button type="submit" disabled={busy}>
-        {busy ? "Submitting..." : `Submit ${categoryDef.label} rating`}
+        {busy ? "Submitting..." : `Submit ${getCategoryDisplayLabel(categoryDef.id, categoryDef.label)} rating`}
       </button>
 
       {message && <p className="message">{message}</p>}
