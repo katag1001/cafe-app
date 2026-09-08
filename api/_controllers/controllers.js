@@ -890,7 +890,17 @@ const getCafes = async (req, res) => {
             },
           },
           { $unwind: { path: "$createdBy", preserveNullAndEmptyArrays: true } },
-          { $project: { "createdBy.password": 0, "createdBy.email": 0 } },
+          {
+            $addFields: {
+              createdBy: {
+                $cond: [
+                  { $eq: ["$createdBy", null] },
+                  null,
+                  { _id: "$createdBy._id", username: "$createdBy.username" },
+                ],
+              },
+            },
+          },
         ],
       },
     });
